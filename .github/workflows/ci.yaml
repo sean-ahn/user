@@ -19,7 +19,8 @@ jobs:
 
       - name: Check Format
         run: |
-          find . -name "*.proto" -print0 | xargs -0 -I {} clang-format --dry-run --Werror {}
+          clang-format --version # 12
+          make check-proto
 
       - name: Lint
         uses: bufbuild/buf-lint-action@v1
