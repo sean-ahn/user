@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  - push
+
+jobs:
+  buf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
+
+      - name: Setup buf
+        uses: bufbuild/buf-setup-action@v0.5.0
+        with:
+          version: "1.0.0-rc5"
+
+      - name: Lint
+        uses: bufbuild/buf-lint-action@v1
+        with:
+          input: "proto"
+
+      - name: Detect Breaking Changes
+        uses: bufbuild/buf-breaking-action@v1
+        with:
+          input: "proto"
+          against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,ref=HEAD~1,subdir=proto"
