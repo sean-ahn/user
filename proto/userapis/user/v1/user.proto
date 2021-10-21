@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc SignIn(SignInRequest) returns (SignInResponse) {
+    option (google.api.http) = {
+      post: "/v1/user/sign-in"
+      body: "*"
+    };
+  }
+}
+
+message SignInRequest {}
+
+message SignInResponse {}
