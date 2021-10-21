@@ -4,7 +4,7 @@ on:
   - push
 
 jobs:
-  protobuf:
+  proto:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,9 +17,12 @@ jobs:
         with:
           version: "1.0.0-rc5"
 
+      - name: Install clang-format
+        run: |
+          sudo apt-get install -y clang-format-12
+
       - name: Check Format
         run: |
-          clang-format --version # 12
           make check-proto
 
       - name: Lint
