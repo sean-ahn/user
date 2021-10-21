@@ -20,6 +20,10 @@ jobs:
         with:
           version: "1.0.0-rc5"
 
+      - name: Build
+        run: |
+          buf build
+
       - name: Lint
         uses: bufbuild/buf-lint-action@v1
 
