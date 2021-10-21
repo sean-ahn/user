@@ -19,8 +19,7 @@ jobs:
 
       - name: Check Format
         run: |
-          sudo apt-get install -y clang-format-12
-          find . -name "*.proto" -print0 | xargs -I {} clang-format --dry-run --Werror {}
+          find . -name "*.proto" -print0 | xargs -0 -I {} clang-format --dry-run --Werror {}
 
       - name: Lint
         uses: bufbuild/buf-lint-action@v1
