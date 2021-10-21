@@ -72,7 +72,7 @@ func run() error {
 
 	logrus.Info("stopping HTTP server")
 	if err := httpServer.Shutdown(ctx); err != nil {
-		logrus.Errorf("shutdown http server: %w", err)
+		logrus.Errorf("shutdown http server: %s", err)
 	}
 
 	logrus.Info("stopping gRPC server")
