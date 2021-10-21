@@ -11,8 +11,8 @@ lint-proto:
 	make check-proto
 	buf lint proto
 
-.PHONY: format-go
-format-go:
+.PHONY: format-backend
+format-backend:
 	@go install golang.org/x/tools/cmd/goimports@latest
 	goimports -local github.com/sean-ahn -w backend
 	gofmt -s -w backend
