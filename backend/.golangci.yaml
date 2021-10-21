@@ -1,0 +1,8 @@
+run:
+  timeout: 1m
+linters:
+  enable:
+    - goimports
+linters-settings:
+  goimports:
+    local-prefixes: github.com/sean-ahn/user
