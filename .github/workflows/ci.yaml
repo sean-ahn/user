@@ -20,14 +20,13 @@ jobs:
         with:
           version: "1.0.0-rc5"
 
-      - name: Build
-        run: |
-          buf build
-
       - name: Lint
         uses: bufbuild/buf-lint-action@v1
+        with:
+          input: "proto"
 
       - name: Detect Breaking Changes
         uses: bufbuild/buf-breaking-action@v1
         with:
+          input: "proto"
           against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main"
