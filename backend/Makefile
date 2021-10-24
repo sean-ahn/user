@@ -19,3 +19,8 @@ generate-sql:
 	cat sqlboiler.tmpl.toml | gomplate > sqlboiler.toml
 	sqlboiler --wipe --no-tests --no-auto-timestamps -p model -o ./model mysql
 	@$(MAKE) format
+
+.PHONY: test
+test:
+	@go install github.com/rakyll/gotest@latest
+	gotest -p 1 -race -cover -v ./...
