@@ -16,6 +16,7 @@ import (
 
 	"github.com/sean-ahn/user/backend/model"
 	"github.com/sean-ahn/user/backend/server/service"
+	"github.com/sean-ahn/user/backend/test"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 
@@ -45,7 +46,7 @@ func TestSignIn(t *testing.T) {
 					"SELECT * FROM `user` WHERE (`user`.`phone_number` = ?) LIMIT 1;",
 				)).WithArgs(
 					"+821012345678",
-				).WillReturnRows(newUserRows([]*model.User{
+				).WillReturnRows(test.NewUserRows([]*model.User{
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
@@ -67,7 +68,7 @@ func TestSignIn(t *testing.T) {
 					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
 				)).WithArgs(
 					"john.doe@naver.com",
-				).WillReturnRows(newUserRows([]*model.User{
+				).WillReturnRows(test.NewUserRows([]*model.User{
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
@@ -89,7 +90,7 @@ func TestSignIn(t *testing.T) {
 					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
 				)).WithArgs(
 					"john.doe@naver.com",
-				).WillReturnRows(newUserRows([]*model.User{
+				).WillReturnRows(test.NewUserRows([]*model.User{
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: false, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
@@ -119,7 +120,7 @@ func TestSignIn(t *testing.T) {
 					"SELECT * FROM `user` WHERE (`user`.`phone_number` = ?) LIMIT 1;",
 				)).WithArgs(
 					"+821012345678",
-				).WillReturnRows(newUserRows([]*model.User{
+				).WillReturnRows(test.NewUserRows([]*model.User{
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
@@ -155,12 +156,7 @@ func TestSignIn(t *testing.T) {
 			if tc.dbExpectFunc != nil {
 				tc.dbExpectFunc(mock)
 			}
-			defer func() {
-				mock.ExpectClose()
-				if err := db.Close(); err != nil {
-					t.Error(err)
-				}
-			}()
+			defer test.CloseSqlmock(t, db, mock)
 
 			mockUserTokenService := service.NewMockUserTokenService(ctrl)
 			if tc.userTokenServiceExpectFunc != nil {
@@ -223,32 +219,4 @@ func Test_normalizePhoneNumber(t *testing.T) {
 			assert.Equal(t, tc.expected, normalized)
 		})
 	}
-}
-
-func newUserRows(users []*model.User) *sqlmock.Rows {
-	rows := sqlmock.NewRows([]string{
-		model.UserColumns.UserID,
-		model.UserColumns.Name,
-		model.UserColumns.Email,
-		model.UserColumns.IsEmailVerified,
-		model.UserColumns.PhoneNumber,
-		model.UserColumns.Nickname,
-		model.UserColumns.PasswordHash,
-		model.UserColumns.CreatedAt,
-		model.UserColumns.UpdatedAt,
-	})
-	for _, u := range users {
-		rows.AddRow(
-			u.UserID,
-			u.Name,
-			u.Email,
-			u.IsEmailVerified,
-			u.PhoneNumber,
-			u.Nickname,
-			u.PasswordHash,
-			u.CreatedAt,
-			u.UpdatedAt,
-		)
-	}
-	return rows
 }

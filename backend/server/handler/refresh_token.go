@@ -20,7 +20,7 @@ func RefreshToken(userTokenService service.UserTokenService) RefreshTokenHandler
 
 		accessToken, refreshToken, err := userTokenService.Refresh(ctx, req.RefreshToken)
 		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "invalid refresh token")
+			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 
 		return &userv1.RefreshTokenResponse{AccessToken: accessToken, RefreshToken: refreshToken}, nil

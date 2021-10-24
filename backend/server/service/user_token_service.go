@@ -26,6 +26,7 @@ const (
 var (
 	errJWTSecretNotFound   = errors.New("jwt secret not found")
 	errInvalidClaimsFormat = errors.New("invalid claims format")
+	errExpiredToken        = errors.New("expired token")
 )
 
 //go:generate mockgen -package service -destination ./user_token_service_mock.go -mock_names UserTokenService=MockUserTokenService github.com/sean-ahn/user/backend/server/service UserTokenService
@@ -79,6 +80,9 @@ func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) 
 		if !ok {
 			return nil, errors.WithStack(errInvalidClaimsFormat)
 		}
+		if claims.Issuer != issuer {
+			return nil, errors.WithStack(errInvalidClaimsFormat)
+		}
 		if len(claims.Audience) != 1 {
 			return nil, errors.WithStack(errInvalidClaimsFormat)
 		}
@@ -103,9 +107,9 @@ func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) 
 	}); err != nil {
 		switch x := errors.Cause(err).(type) {
 		case nil:
-		case jwt.ValidationError:
+		case *jwt.ValidationError:
 			if x.Errors == jwt.ValidationErrorExpired {
-				return "", "", err
+				return "", "", errors.WithStack(errExpiredToken)
 			}
 			if x.Errors == jwt.ValidationErrorUnverifiable {
 				return "", "", errors.WithStack(x.Inner)
