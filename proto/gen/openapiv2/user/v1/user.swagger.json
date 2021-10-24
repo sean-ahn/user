@@ -18,6 +18,7 @@
   "paths": {
     "/user/v1/sign-in": {
       "post": {
+        "summary": "로그인",
         "operationId": "UserService_SignIn",
         "responses": {
           "200": {
@@ -40,6 +41,39 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1SignInRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/user/v1/token/refresh": {
+      "post": {
+        "summary": "토큰 갱신",
+        "operationId": "UserService_RefreshToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RefreshTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RefreshTokenRequest"
             }
           }
         ],
@@ -74,6 +108,28 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1RefreshTokenRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string",
+          "title": "format: JWT"
+        }
+      }
+    },
+    "v1RefreshTokenResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "title": "format: JWT"
+        },
+        "refreshToken": {
+          "type": "string",
+          "title": "format: JWT"
         }
       }
     },

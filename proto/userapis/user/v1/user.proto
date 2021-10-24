@@ -5,9 +5,17 @@ package user.v1;
 import "google/api/annotations.proto";
 
 service UserService {
+  // 로그인
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
       post: "/user/v1/sign-in"
+      body: "*"
+    };
+  }
+  // 토큰 갱신
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/token/refresh"
       body: "*"
     };
   }
@@ -19,6 +27,18 @@ message SignInRequest {
 }
 
 message SignInResponse {
+  // format: JWT
+  string access_token = 1;
+  // format: JWT
+  string refresh_token = 2;
+}
+
+message RefreshTokenRequest {
+  // format: JWT
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
   // format: JWT
   string access_token = 1;
   // format: JWT
