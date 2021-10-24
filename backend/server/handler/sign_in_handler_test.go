@@ -6,17 +6,13 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
-
-	"github.com/sean-ahn/user/backend/model"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 
+	"github.com/sean-ahn/user/backend/model"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 
