@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"net"
 	"net/http"
 	"os"
@@ -14,7 +15,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/sean-ahn/user/backend/config"
+	"github.com/sean-ahn/user/backend/crypto"
+	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"github.com/sean-ahn/user/backend/server"
+)
+
+const (
+	passwordSalt = "DdUvj62VZaFEJkHOQkxT1A=="
 )
 
 func main() {
@@ -31,7 +38,14 @@ func run() error {
 
 	setting := config.NewSetting()
 
-	cfg := config.New(setting)
+	db := mysql.MustGetDB(setting.DB)
+
+	salt, err := base64.StdEncoding.DecodeString(passwordSalt)
+	if err != nil {
+		logrus.Panic(err)
+	}
+
+	cfg := config.New(setting, db, crypto.NewScryptHasher(salt))
 
 	grpcServer, err := server.NewGRPCServer(cfg)
 	if err != nil {

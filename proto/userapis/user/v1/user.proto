@@ -7,12 +7,15 @@ import "google/api/annotations.proto";
 service UserService {
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
-      post: "/v1/user/sign-in"
+      post: "/user/v1/sign-in"
       body: "*"
     };
   }
 }
 
-message SignInRequest {}
+message SignInRequest {
+  string id = 1;
+  string password = 2;
+}
 
 message SignInResponse {}

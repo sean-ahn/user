@@ -1,6 +1,8 @@
 package server
 
 import (
+	"context"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -8,6 +10,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/sean-ahn/user/backend/config"
+	"github.com/sean-ahn/user/backend/server/handler"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 
@@ -23,8 +26,8 @@ func NewUserServer(cfg config.Config) (*UserServer, error) {
 	}, nil
 }
 
-func (s *UserServer) Config() config.Config {
-	return s.cfg
+func (s *UserServer) SignIn(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error) {
+	return handler.SignIn(s.cfg.PasswordHasher(), s.cfg.DB())(ctx, req)
 }
 
 func NewGRPCServer(cfg config.Config) (*grpc.Server, error) {

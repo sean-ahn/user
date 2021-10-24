@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/v1/user/sign-in": {
+    "/user/v1/sign-in": {
       "post": {
         "operationId": "UserService_SignIn",
         "responses": {
@@ -78,7 +78,15 @@
       }
     },
     "v1SignInRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
     },
     "v1SignInResponse": {
       "type": "object"

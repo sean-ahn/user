@@ -29,62 +29,62 @@ type User struct { // 유저 아이디
 	// 이메일
 	Email string `boil:"email" json:"email" toml:"email" yaml:"email"`
 	// 이메일 검증 여부
-	IsEmailConfirmed bool `boil:"is_email_confirmed" json:"is_email_confirmed" toml:"is_email_confirmed" yaml:"is_email_confirmed"`
+	IsEmailVerified bool `boil:"is_email_verified" json:"is_email_verified" toml:"is_email_verified" yaml:"is_email_verified"`
 	// 핸드폰 번호
 	PhoneNumber string `boil:"phone_number" json:"phone_number" toml:"phone_number" yaml:"phone_number"`
 	// 닉네임
 	Nickname string `boil:"nickname" json:"nickname" toml:"nickname" yaml:"nickname"`
 	// 비밀번호
-	PasswordHashed string    `boil:"password_hashed" json:"password_hashed" toml:"password_hashed" yaml:"password_hashed"`
-	CreatedAt      time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt      time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	PasswordHash string    `boil:"password_hash" json:"password_hash" toml:"password_hash" yaml:"password_hash"`
+	CreatedAt    time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt    time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *userR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	UserID           string
-	Name             string
-	Email            string
-	IsEmailConfirmed string
-	PhoneNumber      string
-	Nickname         string
-	PasswordHashed   string
-	CreatedAt        string
-	UpdatedAt        string
+	UserID          string
+	Name            string
+	Email           string
+	IsEmailVerified string
+	PhoneNumber     string
+	Nickname        string
+	PasswordHash    string
+	CreatedAt       string
+	UpdatedAt       string
 }{
-	UserID:           "user_id",
-	Name:             "name",
-	Email:            "email",
-	IsEmailConfirmed: "is_email_confirmed",
-	PhoneNumber:      "phone_number",
-	Nickname:         "nickname",
-	PasswordHashed:   "password_hashed",
-	CreatedAt:        "created_at",
-	UpdatedAt:        "updated_at",
+	UserID:          "user_id",
+	Name:            "name",
+	Email:           "email",
+	IsEmailVerified: "is_email_verified",
+	PhoneNumber:     "phone_number",
+	Nickname:        "nickname",
+	PasswordHash:    "password_hash",
+	CreatedAt:       "created_at",
+	UpdatedAt:       "updated_at",
 }
 
 var UserTableColumns = struct {
-	UserID           string
-	Name             string
-	Email            string
-	IsEmailConfirmed string
-	PhoneNumber      string
-	Nickname         string
-	PasswordHashed   string
-	CreatedAt        string
-	UpdatedAt        string
+	UserID          string
+	Name            string
+	Email           string
+	IsEmailVerified string
+	PhoneNumber     string
+	Nickname        string
+	PasswordHash    string
+	CreatedAt       string
+	UpdatedAt       string
 }{
-	UserID:           "user.user_id",
-	Name:             "user.name",
-	Email:            "user.email",
-	IsEmailConfirmed: "user.is_email_confirmed",
-	PhoneNumber:      "user.phone_number",
-	Nickname:         "user.nickname",
-	PasswordHashed:   "user.password_hashed",
-	CreatedAt:        "user.created_at",
-	UpdatedAt:        "user.updated_at",
+	UserID:          "user.user_id",
+	Name:            "user.name",
+	Email:           "user.email",
+	IsEmailVerified: "user.is_email_verified",
+	PhoneNumber:     "user.phone_number",
+	Nickname:        "user.nickname",
+	PasswordHash:    "user.password_hash",
+	CreatedAt:       "user.created_at",
+	UpdatedAt:       "user.updated_at",
 }
 
 // Generated where
@@ -166,25 +166,25 @@ func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
 }
 
 var UserWhere = struct {
-	UserID           whereHelperint
-	Name             whereHelperstring
-	Email            whereHelperstring
-	IsEmailConfirmed whereHelperbool
-	PhoneNumber      whereHelperstring
-	Nickname         whereHelperstring
-	PasswordHashed   whereHelperstring
-	CreatedAt        whereHelpertime_Time
-	UpdatedAt        whereHelpertime_Time
+	UserID          whereHelperint
+	Name            whereHelperstring
+	Email           whereHelperstring
+	IsEmailVerified whereHelperbool
+	PhoneNumber     whereHelperstring
+	Nickname        whereHelperstring
+	PasswordHash    whereHelperstring
+	CreatedAt       whereHelpertime_Time
+	UpdatedAt       whereHelpertime_Time
 }{
-	UserID:           whereHelperint{field: "`user`.`user_id`"},
-	Name:             whereHelperstring{field: "`user`.`name`"},
-	Email:            whereHelperstring{field: "`user`.`email`"},
-	IsEmailConfirmed: whereHelperbool{field: "`user`.`is_email_confirmed`"},
-	PhoneNumber:      whereHelperstring{field: "`user`.`phone_number`"},
-	Nickname:         whereHelperstring{field: "`user`.`nickname`"},
-	PasswordHashed:   whereHelperstring{field: "`user`.`password_hashed`"},
-	CreatedAt:        whereHelpertime_Time{field: "`user`.`created_at`"},
-	UpdatedAt:        whereHelpertime_Time{field: "`user`.`updated_at`"},
+	UserID:          whereHelperint{field: "`user`.`user_id`"},
+	Name:            whereHelperstring{field: "`user`.`name`"},
+	Email:           whereHelperstring{field: "`user`.`email`"},
+	IsEmailVerified: whereHelperbool{field: "`user`.`is_email_verified`"},
+	PhoneNumber:     whereHelperstring{field: "`user`.`phone_number`"},
+	Nickname:        whereHelperstring{field: "`user`.`nickname`"},
+	PasswordHash:    whereHelperstring{field: "`user`.`password_hash`"},
+	CreatedAt:       whereHelpertime_Time{field: "`user`.`created_at`"},
+	UpdatedAt:       whereHelpertime_Time{field: "`user`.`updated_at`"},
 }
 
 // UserRels is where relationship names are stored.
@@ -204,9 +204,9 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"user_id", "name", "email", "is_email_confirmed", "phone_number", "nickname", "password_hashed", "created_at", "updated_at"}
-	userColumnsWithoutDefault = []string{"name", "email", "phone_number", "nickname", "password_hashed"}
-	userColumnsWithDefault    = []string{"user_id", "is_email_confirmed", "created_at", "updated_at"}
+	userAllColumns            = []string{"user_id", "name", "email", "is_email_verified", "phone_number", "nickname", "password_hash", "created_at", "updated_at"}
+	userColumnsWithoutDefault = []string{"name", "email", "phone_number", "nickname", "password_hash"}
+	userColumnsWithDefault    = []string{"user_id", "is_email_verified", "created_at", "updated_at"}
 	userPrimaryKeyColumns     = []string{"user_id"}
 )
 
