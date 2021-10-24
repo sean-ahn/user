@@ -1,0 +1,8 @@
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssw0rd
+    ports:
+      - 3306:3306
