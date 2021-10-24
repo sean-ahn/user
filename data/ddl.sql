@@ -55,15 +55,15 @@ CREATE TABLE `jwt_denylist`
 
 CREATE TABLE `sms_otp_verification`
 (
-    `sms_otp_verification_id` int AUTO_INCREMENT COMMENT 'SMS OTP 인증 아이디',
-    `verification_token`  varchar(36) NOT NULL COMMENT '인증 토큰',  -- format: uuid v4
-    `phone_number`        varchar(15) NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
-    `otp_code`            varchar(6)  NOT NULL COMMENT '인증 코드',
-    `verification_trials` int(11)     NOT NULL COMMENT '검증 시도 횟수',
-    `is_verified`         tinyint(1)  NOT NULL COMMENT '인증 여부',
-    `expires_at`          timestamp   NOT NULL COMMENT '만료 일시',
-    `created_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `sms_otp_verification_id`  int AUTO_INCREMENT COMMENT 'SMS OTP 인증 아이디',
+    `verification_token`       varchar(36) NOT NULL COMMENT '인증 토큰',  -- format: uuid v4
+    `phone_number`             varchar(15) NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
+    `otp_code`                 varchar(6)  NOT NULL COMMENT '인증 코드',
+    `expires_at`               timestamp   NOT NULL COMMENT '만료 일시',
+    `verification_trials`      int(11)     NOT NULL COMMENT '검증 시도 횟수',
+    `verification_valid_until` timestamp            DEFAULT NULL COMMENT '검증 유효 일시',
+    `created_at`               timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`               timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`sms_otp_verification_id`),
     UNIQUE KEY `sms_otp_verification_u1` (`verification_token`),
     KEY `sms_otp_verification_m1` (`created_at`),
