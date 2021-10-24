@@ -20,3 +20,19 @@ CREATE TABLE `user`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='유저';
+
+
+CREATE TABLE `jwt_audience_secret`
+(
+    `jwt_audience_secret_id` int         NOT NULL AUTO_INCREMENT COMMENT 'JWT audience secret 아이디',
+    `audience`               varchar(10) NOT NULL COMMENT 'JWT audience', -- user.user_id
+    `secret`                 varchar(44) NOT NULL COMMENT 'secret', -- base64 encoded 256 bits
+    `created_at`             timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`             timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`jwt_audience_secret_id`),
+    UNIQUE KEY `jwt_audience_secret_u1` (`audience`),
+    KEY `jwt_audience_secret_m1` (`created_at`),
+    KEY `jwt_audience_secret_m2` (`updated_at`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT ='JWT audience secret';

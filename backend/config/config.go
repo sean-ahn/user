@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/sean-ahn/user/backend/crypto"
+	"github.com/sean-ahn/user/backend/server/service"
 )
 
 type Config interface {
@@ -11,12 +12,14 @@ type Config interface {
 
 	DB() *sql.DB
 	PasswordHasher() crypto.Hasher
+	UserTokenService() service.UserTokenService
 }
 
 type DefaultConfig struct {
-	setting        Setting
-	db             *sql.DB
-	passwordHasher crypto.Hasher
+	setting          Setting
+	db               *sql.DB
+	passwordHasher   crypto.Hasher
+	userTokenService service.UserTokenService
 }
 
 var _ Config = (*DefaultConfig)(nil)
@@ -33,10 +36,15 @@ func (c *DefaultConfig) PasswordHasher() crypto.Hasher {
 	return c.passwordHasher
 }
 
-func New(setting Setting, db *sql.DB, passwordHasher crypto.Hasher) *DefaultConfig {
+func (c *DefaultConfig) UserTokenService() service.UserTokenService {
+	return c.userTokenService
+}
+
+func New(setting Setting, db *sql.DB, passwordHasher crypto.Hasher, userTokenService service.UserTokenService) *DefaultConfig {
 	return &DefaultConfig{
-		setting:        setting,
-		db:             db,
-		passwordHasher: passwordHasher,
+		setting:          setting,
+		db:               db,
+		passwordHasher:   passwordHasher,
+		userTokenService: userTokenService,
 	}
 }

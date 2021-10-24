@@ -7,13 +7,13 @@ import (
 
 	"github.com/nyaruka/phonenumbers"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/model"
+	"github.com/sean-ahn/user/backend/server/service"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 
@@ -30,7 +30,7 @@ const (
 
 type SignInHandlerFunc func(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error)
 
-func SignIn(hasher crypto.Hasher, db *sql.DB) SignInHandlerFunc {
+func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserTokenService) SignInHandlerFunc {
 	return func(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error) {
 		if req.Id == "" {
 			return nil, status.Error(codes.InvalidArgument, "no id")
@@ -81,13 +81,17 @@ func SignIn(hasher crypto.Hasher, db *sql.DB) SignInHandlerFunc {
 			return nil, status.Error(codes.Unauthenticated, "email not verified yet")
 		}
 
-		return &userv1.SignInResponse{}, nil // TODO: Add token
+		accessToken, refreshToken, err := userTokenService.Issue(ctx, user)
+		if err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+
+		return &userv1.SignInResponse{AccessToken: accessToken, RefreshToken: refreshToken}, nil // TODO: Add token
 	}
 }
 
 func detectIDType(id string) IDType {
 	if p, err := phonenumbers.Parse(id, "KR"); err == nil && phonenumbers.IsValidNumber(p) {
-		logrus.Info(phonenumbers.Format(p, phonenumbers.E164))
 		return IDTypePhoneNumber
 	}
 	if strings.Contains(id, "@") { // TODO: Use regexp

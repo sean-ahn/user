@@ -18,4 +18,9 @@ message SignInRequest {
   string password = 2;
 }
 
-message SignInResponse {}
+message SignInResponse {
+  // format: JWT
+  string access_token = 1;
+  // format: JWT
+  string refresh_token = 2;
+}

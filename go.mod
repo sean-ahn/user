@@ -6,8 +6,12 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/friendsofgo/errors v0.9.2
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.6
+	github.com/google/uuid v1.1.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.6.0
+	github.com/jonboulle/clockwork v0.2.2
 	github.com/nyaruka/phonenumbers v1.0.72
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.8.1
