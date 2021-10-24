@@ -5,8 +5,10 @@ package model
 
 var TableNames = struct {
 	JWTAudienceSecret string
+	JWTDenylist       string
 	User              string
 }{
 	JWTAudienceSecret: "jwt_audience_secret",
+	JWTDenylist:       "jwt_denylist",
 	User:              "user",
 }

@@ -12,6 +12,13 @@ service UserService {
       body: "*"
     };
   }
+  // 로그아웃
+  rpc SignOut(SignOutRequest) returns (SignOutResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/sign-out"
+      body: "*"
+    };
+  }
   // 토큰 갱신
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
     option (google.api.http) = {
@@ -32,6 +39,13 @@ message SignInResponse {
   // format: JWT
   string refresh_token = 2;
 }
+
+message SignOutRequest {
+  // format: JWT
+  string refresh_token = 1;
+}
+
+message SignOutResponse {}
 
 message RefreshTokenRequest {
   // format: JWT

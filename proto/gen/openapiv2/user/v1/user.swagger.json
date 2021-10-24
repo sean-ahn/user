@@ -49,6 +49,39 @@
         ]
       }
     },
+    "/user/v1/sign-out": {
+      "post": {
+        "summary": "로그아웃",
+        "operationId": "UserService_SignOut",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SignOutResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignOutRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/token/refresh": {
       "post": {
         "summary": "토큰 갱신",
@@ -156,6 +189,18 @@
           "title": "format: JWT"
         }
       }
+    },
+    "v1SignOutRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string",
+          "title": "format: JWT"
+        }
+      }
+    },
+    "v1SignOutResponse": {
+      "type": "object"
     }
   }
 }

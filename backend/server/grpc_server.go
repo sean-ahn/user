@@ -30,6 +30,10 @@ func (s *UserServer) SignIn(ctx context.Context, req *userv1.SignInRequest) (*us
 	return handler.SignIn(s.cfg.PasswordHasher(), s.cfg.DB(), s.cfg.UserTokenService())(ctx, req)
 }
 
+func (s *UserServer) SignOut(ctx context.Context, req *userv1.SignOutRequest) (*userv1.SignOutResponse, error) {
+	return handler.SignOut(s.cfg.UserTokenService())(ctx, req)
+}
+
 func (s *UserServer) RefreshToken(ctx context.Context, req *userv1.RefreshTokenRequest) (*userv1.RefreshTokenResponse, error) {
 	return handler.RefreshToken(s.cfg.UserTokenService())(ctx, req)
 }
