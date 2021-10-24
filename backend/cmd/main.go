@@ -11,6 +11,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jonboulle/clockwork"
+
+	"github.com/sean-ahn/user/backend/server/service"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -36,6 +40,8 @@ func run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	clock := clockwork.NewRealClock()
+
 	setting := config.NewSetting()
 
 	db := mysql.MustGetDB(setting.DB)
@@ -45,7 +51,14 @@ func run() error {
 		logrus.Panic(err)
 	}
 
-	cfg := config.New(setting, db, crypto.NewScryptHasher(salt))
+	userTokenService := service.NewJWTTokenService(
+		clock,
+		db,
+		time.Duration(setting.AccessTokenExpiresInMs)*time.Millisecond,
+		time.Duration(setting.RefreshTokenExpiresInMs)*time.Millisecond,
+	)
+
+	cfg := config.New(setting, db, crypto.NewScryptHasher(salt), userTokenService)
 
 	grpcServer, err := server.NewGRPCServer(cfg)
 	if err != nil {

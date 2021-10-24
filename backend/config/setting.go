@@ -15,6 +15,9 @@ type Setting struct {
 	GracefulShutdownTimeoutMs int
 
 	DB mysql.Setting
+
+	AccessTokenExpiresInMs  int
+	RefreshTokenExpiresInMs int
 }
 
 func NewSetting() Setting {
@@ -33,6 +36,9 @@ func NewSetting() Setting {
 			MaxOpenConns:      mustAtoi(getEnv("DB_MAX_OPEN_CONNS", "5")),
 			ConnMaxLifetimeMs: mustAtoi(getEnv("DB_CONN_MAX_LIFETIME_MS", "14400000")),
 		},
+
+		AccessTokenExpiresInMs:  mustAtoi(getEnv("ACCESS_TOKEN_EXPIRES_IN_MS", "600000")),      // 10 min
+		RefreshTokenExpiresInMs: mustAtoi(getEnv("REFRESH_TOKEN_EXPIRES_IN_MS", "1209600000")), // 14 days
 	}
 }
 

@@ -12,6 +12,12 @@ format:
 lint:
 	golangci-lint run ./...
 
+.PHONY: generate-mock
+generate-mock:
+	@go get github.com/golang/mock/gomock
+	@go install github.com/golang/mock/mockgen@v1.6.0
+	go generate ./...
+
 .PHONY: generate-sql
 generate-sql:
 	@go install github.com/volatiletech/sqlboiler/v4@latest
