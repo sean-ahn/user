@@ -3,9 +3,8 @@ package config
 import (
 	"database/sql"
 
-	"github.com/sean-ahn/user/backend/server/service"
-
 	"github.com/sean-ahn/user/backend/crypto"
+	"github.com/sean-ahn/user/backend/server/service"
 )
 
 type Config interface {

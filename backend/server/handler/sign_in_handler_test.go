@@ -14,9 +14,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 
-	"github.com/sean-ahn/user/backend/server/service"
-
 	"github.com/sean-ahn/user/backend/model"
+	"github.com/sean-ahn/user/backend/server/service"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 

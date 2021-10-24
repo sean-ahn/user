@@ -11,10 +11,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/sean-ahn/user/backend/server/service"
-
 	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/model"
+	"github.com/sean-ahn/user/backend/server/service"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 

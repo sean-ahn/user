@@ -12,9 +12,6 @@ import (
 	"time"
 
 	"github.com/jonboulle/clockwork"
-
-	"github.com/sean-ahn/user/backend/server/service"
-
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -22,6 +19,7 @@ import (
 	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"github.com/sean-ahn/user/backend/server"
+	"github.com/sean-ahn/user/backend/server/service"
 )
 
 const (
