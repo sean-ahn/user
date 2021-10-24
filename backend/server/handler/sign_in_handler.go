@@ -115,11 +115,3 @@ func findUserByPhoneNumber(ctx context.Context, exec boil.ContextExecutor, phone
 	}
 	return u, nil
 }
-
-func normalizePhoneNumber(s string) (string, error) {
-	p, err := phonenumbers.Parse(s, "KR")
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	return phonenumbers.Format(p, phonenumbers.E164), nil
-}

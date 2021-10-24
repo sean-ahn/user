@@ -41,8 +41,8 @@ CREATE TABLE `jwt_audience_secret`
 CREATE TABLE `jwt_denylist`
 (
     `jwt_denylist_id` int         NOT NULL AUTO_INCREMENT COMMENT 'JWT denylist 아이디',
-    `user_id`         INT         NOT NULL COMMENT '유저 아이디',
-    `jti`             VARCHAR(36) NOT NULL COMMENT 'jti(JWT ID) claim', -- uuid v4
+    `user_id`         int         NOT NULL COMMENT '유저 아이디',
+    `jti`             varchar(36) NOT NULL COMMENT 'jti(JWT ID) claim', -- uuid v4
     `created_at`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`jwt_denylist_id`),
@@ -52,3 +52,22 @@ CREATE TABLE `jwt_denylist`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='JWT denylist';
+
+CREATE TABLE `sms_otp_verification`
+(
+    `sms_otp_verification_id` int AUTO_INCREMENT COMMENT 'SMS OTP 인증 아이디',
+    `verification_token`  varchar(36) NOT NULL COMMENT '인증 토큰',  -- format: uuid v4
+    `phone_number`        varchar(15) NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
+    `otp_code`            varchar(6)  NOT NULL COMMENT '인증 코드',
+    `verification_trials` int(11)     NOT NULL COMMENT '검증 시도 횟수',
+    `is_verified`         tinyint(1)  NOT NULL COMMENT '인증 여부',
+    `expires_at`          timestamp   NOT NULL COMMENT '만료 일시',
+    `created_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`sms_otp_verification_id`),
+    UNIQUE KEY `sms_otp_verification_u1` (`verification_token`),
+    KEY `sms_otp_verification_m1` (`created_at`),
+    KEY `sms_otp_verification_m2` (`updated_at`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT ='SMS OTP 인증';

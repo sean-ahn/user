@@ -5,6 +5,13 @@ package user.v1;
 import "google/api/annotations.proto";
 
 service UserService {
+  // SMS OTP 요청
+  rpc RequestSmsOtp(RequestSmsOtpRequest) returns (RequestSmsOtpResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/otp/sms/request"
+      body: "*"
+    };
+  }
   // 로그인
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
@@ -26,6 +33,19 @@ service UserService {
       body: "*"
     };
   }
+}
+
+message RequestSmsOtpRequest {
+  // format: E.164
+  string phone_number = 1;
+}
+
+message RequestSmsOtpResponse {
+  // format: uuid v4
+  string verification_token = 1;
+  // unit: millisecond
+  // e.g. `180000` means 3 minutes
+  int32 expires_in_ms = 2;
 }
 
 message SignInRequest {

@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/user/v1/otp/sms/request": {
+      "post": {
+        "summary": "SMS OTP 요청",
+        "operationId": "UserService_RequestSmsOtp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RequestSmsOtpResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RequestSmsOtpRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/sign-in": {
       "post": {
         "summary": "로그인",
@@ -163,6 +196,29 @@
         "refreshToken": {
           "type": "string",
           "title": "format: JWT"
+        }
+      }
+    },
+    "v1RequestSmsOtpRequest": {
+      "type": "object",
+      "properties": {
+        "phoneNumber": {
+          "type": "string",
+          "title": "format: E.164"
+        }
+      }
+    },
+    "v1RequestSmsOtpResponse": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "title": "format: uuid v4"
+        },
+        "expiresInMs": {
+          "type": "integer",
+          "format": "int32",
+          "title": "unit: millisecond\ne.g. `180000` means 3 minutes"
         }
       }
     },

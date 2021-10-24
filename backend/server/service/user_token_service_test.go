@@ -14,6 +14,7 @@ import (
 
 	"github.com/sean-ahn/user/backend/model"
 	"github.com/sean-ahn/user/backend/persistence/mysql"
+	"github.com/sean-ahn/user/backend/server/generator"
 	"github.com/sean-ahn/user/backend/test"
 )
 
@@ -90,6 +91,7 @@ func TestUserJWTTokenService_Issue(t *testing.T) {
 			svc := UserJWTTokenService{
 				clock:                 clockwork.NewFakeClockAt(now),
 				db:                    db,
+				idGenerator:           &generator.UUIDGenerator{},
 				accessTokenExpiresIn:  10 * time.Second,
 				refreshTokenExpiresIn: 14 * 24 * time.Hour,
 			}
@@ -214,6 +216,7 @@ func TestUserJWTTokenService_Refresh(t *testing.T) {
 			svc := UserJWTTokenService{
 				clock:                 clockwork.NewFakeClockAt(now),
 				db:                    db,
+				idGenerator:           &generator.UUIDGenerator{},
 				accessTokenExpiresIn:  10 * time.Second,
 				refreshTokenExpiresIn: 14 * 24 * time.Hour,
 			}
@@ -331,6 +334,7 @@ func TestUserJWTTokenService_Revoke(t *testing.T) {
 			svc := UserJWTTokenService{
 				clock:                 clockwork.NewFakeClockAt(now),
 				db:                    db,
+				idGenerator:           &generator.UUIDGenerator{},
 				accessTokenExpiresIn:  10 * time.Second,
 				refreshTokenExpiresIn: 14 * 24 * time.Hour,
 			}

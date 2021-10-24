@@ -18,6 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
+	// SMS OTP 요청
+	RequestSmsOtp(ctx context.Context, in *RequestSmsOtpRequest, opts ...grpc.CallOption) (*RequestSmsOtpResponse, error)
 	// 로그인
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	// 로그아웃
@@ -32,6 +34,15 @@ type userServiceClient struct {
 
 func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
+}
+
+func (c *userServiceClient) RequestSmsOtp(ctx context.Context, in *RequestSmsOtpRequest, opts ...grpc.CallOption) (*RequestSmsOtpResponse, error) {
+	out := new(RequestSmsOtpResponse)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/RequestSmsOtp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *userServiceClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
@@ -65,6 +76,8 @@ func (c *userServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 // All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
+	// SMS OTP 요청
+	RequestSmsOtp(context.Context, *RequestSmsOtpRequest) (*RequestSmsOtpResponse, error)
 	// 로그인
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	// 로그아웃
@@ -77,6 +90,9 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
+func (UnimplementedUserServiceServer) RequestSmsOtp(context.Context, *RequestSmsOtpRequest) (*RequestSmsOtpResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RequestSmsOtp not implemented")
+}
 func (UnimplementedUserServiceServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
@@ -96,6 +112,24 @@ type UnsafeUserServiceServer interface {
 
 func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
+}
+
+func _UserService_RequestSmsOtp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestSmsOtpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).RequestSmsOtp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.UserService/RequestSmsOtp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).RequestSmsOtp(ctx, req.(*RequestSmsOtpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _UserService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -159,6 +193,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "user.v1.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RequestSmsOtp",
+			Handler:    _UserService_RequestSmsOtp_Handler,
+		},
 		{
 			MethodName: "SignIn",
 			Handler:    _UserService_SignIn_Handler,

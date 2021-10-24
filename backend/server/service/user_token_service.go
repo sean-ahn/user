@@ -11,13 +11,13 @@ import (
 
 	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"github.com/pkg/errors"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/sean-ahn/user/backend/model"
 	"github.com/sean-ahn/user/backend/persistence/mysql"
+	"github.com/sean-ahn/user/backend/server/generator"
 )
 
 const (
@@ -42,8 +42,9 @@ type UserTokenService interface {
 }
 
 type UserJWTTokenService struct {
-	clock clockwork.Clock
-	db    *sql.DB
+	clock       clockwork.Clock
+	db          *sql.DB
+	idGenerator generator.Generator
 
 	accessTokenExpiresIn  time.Duration
 	refreshTokenExpiresIn time.Duration
@@ -58,7 +59,13 @@ type JWTClaims struct {
 }
 
 func NewJWTTokenService(clock clockwork.Clock, db *sql.DB, accessTokenExpiresIn, refreshTokenExpiresIn time.Duration) *UserJWTTokenService {
-	return &UserJWTTokenService{clock: clock, db: db, accessTokenExpiresIn: accessTokenExpiresIn, refreshTokenExpiresIn: refreshTokenExpiresIn}
+	return &UserJWTTokenService{
+		clock:                 clock,
+		db:                    db,
+		idGenerator:           &generator.UUIDGenerator{},
+		accessTokenExpiresIn:  accessTokenExpiresIn,
+		refreshTokenExpiresIn: refreshTokenExpiresIn,
+	}
 }
 
 func (s *UserJWTTokenService) Issue(ctx context.Context, user *model.User) (string, string, error) {
@@ -201,7 +208,7 @@ func (s *UserJWTTokenService) newClaimsPair(user *model.User) (JWTClaims, JWTCla
 			UserID: strconv.FormatInt(int64(user.UserID), 10),
 		}, JWTClaims{
 			RegisteredClaims: jwt.RegisteredClaims{
-				ID:        uuid.New().String(),
+				ID:        s.idGenerator.Generate(),
 				Audience:  []string{s.getAudience(user)},
 				ExpiresAt: jwt.NewNumericDate(now.Add(s.refreshTokenExpiresIn)),
 				IssuedAt:  jwt.NewNumericDate(now),
