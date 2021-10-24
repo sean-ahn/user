@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"net"
 	"net/http"
 	"os"
@@ -12,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sean-ahn/user/backend/crypto"
-
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
 	"github.com/sean-ahn/user/backend/config"
+	"github.com/sean-ahn/user/backend/crypto"
+	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"github.com/sean-ahn/user/backend/server"
 )
 

@@ -1,11 +1,12 @@
 package config
 
 import (
-	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"os"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/sean-ahn/user/backend/persistence/mysql"
 )
 
 type Setting struct {

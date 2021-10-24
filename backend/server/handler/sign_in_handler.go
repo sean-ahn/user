@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/sean-ahn/user/backend/crypto"
-
 	"github.com/nyaruka/phonenumbers"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -14,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/model"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )

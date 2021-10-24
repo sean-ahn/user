@@ -9,9 +9,8 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/sean-ahn/user/backend/server/handler"
-
 	"github.com/sean-ahn/user/backend/config"
+	"github.com/sean-ahn/user/backend/server/handler"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
 
