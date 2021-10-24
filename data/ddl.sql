@@ -26,7 +26,7 @@ CREATE TABLE `jwt_audience_secret`
 (
     `jwt_audience_secret_id` int         NOT NULL AUTO_INCREMENT COMMENT 'JWT audience secret 아이디',
     `audience`               varchar(10) NOT NULL COMMENT 'JWT audience', -- user.user_id
-    `secret`                 varchar(44) NOT NULL COMMENT 'secret', -- base64 encoded 256 bits
+    `secret`                 varchar(44) NOT NULL COMMENT 'secret',       -- base64 encoded 256 bits
     `created_at`             timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`             timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`jwt_audience_secret_id`),
@@ -36,3 +36,19 @@ CREATE TABLE `jwt_audience_secret`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='JWT audience secret';
+
+
+CREATE TABLE `jwt_denylist`
+(
+    `jwt_denylist_id` int         NOT NULL AUTO_INCREMENT COMMENT 'JWT denylist 아이디',
+    `user_id`         INT         NOT NULL COMMENT '유저 아이디',
+    `jti`             VARCHAR(36) NOT NULL COMMENT 'jti(JWT ID) claim', -- uuid v4
+    `created_at`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`      timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`jwt_denylist_id`),
+    UNIQUE KEY `jwt_denylist_u1` (`jti`),
+    KEY `jwt_denylist_m1` (`created_at`),
+    KEY `jwt_denylist_m2` (`updated_at`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci COMMENT ='JWT denylist';
