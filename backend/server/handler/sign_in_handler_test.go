@@ -7,11 +7,14 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
+
+	"github.com/sean-ahn/user/backend/server/service"
 
 	"github.com/sean-ahn/user/backend/model"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
@@ -28,7 +31,8 @@ func TestSignIn(t *testing.T) {
 		name string
 		req  *userv1.SignInRequest
 
-		dbExpectFunc func(sqlmock.Sqlmock)
+		dbExpectFunc               func(sqlmock.Sqlmock)
+		userTokenServiceExpectFunc func(context.Context) func(*service.MockUserTokenService)
 
 		expectedCode codes.Code
 		expectedResp *userv1.SignInResponse
@@ -46,8 +50,15 @@ func TestSignIn(t *testing.T) {
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
+			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
+				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
+						Return("access_token", "refresh_token", nil)
+				}
+			},
 			expectedCode: codes.OK,
-			expectedResp: &userv1.SignInResponse{},
+			expectedResp: &userv1.SignInResponse{AccessToken: "access_token", RefreshToken: "refresh_token"},
 		},
 		{
 			name: "sign in with verified email",
@@ -61,8 +72,15 @@ func TestSignIn(t *testing.T) {
 					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
+			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
+				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
+						Return("access_token", "refresh_token", nil)
+				}
+			},
 			expectedCode: codes.OK,
-			expectedResp: &userv1.SignInResponse{},
+			expectedResp: &userv1.SignInResponse{AccessToken: "access_token", RefreshToken: "refresh_token"},
 		},
 		{
 			name: "sign in with unverified email",
@@ -129,6 +147,8 @@ func TestSignIn(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
 
+			ctrl := gomock.NewController(t)
+
 			db, mock, err := sqlmock.New()
 			if err != nil {
 				t.Fail()
@@ -143,7 +163,12 @@ func TestSignIn(t *testing.T) {
 				}
 			}()
 
-			handler := SignIn(&testHasher{}, db)
+			mockUserTokenService := service.NewMockUserTokenService(ctrl)
+			if tc.userTokenServiceExpectFunc != nil {
+				tc.userTokenServiceExpectFunc(ctx)(mockUserTokenService)
+			}
+
+			handler := SignIn(&testHasher{}, db, mockUserTokenService)
 
 			resp, err := handler(ctx, tc.req)
 

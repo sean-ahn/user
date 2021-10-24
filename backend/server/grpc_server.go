@@ -27,7 +27,7 @@ func NewUserServer(cfg config.Config) (*UserServer, error) {
 }
 
 func (s *UserServer) SignIn(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error) {
-	return handler.SignIn(s.cfg.PasswordHasher(), s.cfg.DB())(ctx, req)
+	return handler.SignIn(s.cfg.PasswordHasher(), s.cfg.DB(), s.cfg.UserTokenService())(ctx, req)
 }
 
 func NewGRPCServer(cfg config.Config) (*grpc.Server, error) {
