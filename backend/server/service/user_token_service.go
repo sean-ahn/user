@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"github.com/pkg/errors"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 
 	"github.com/sean-ahn/user/backend/model"
+	"github.com/sean-ahn/user/backend/persistence/mysql"
 )
 
 const (
@@ -23,14 +24,15 @@ const (
 )
 
 var (
-	errJWTSecretNotFound = errors.New("jwt secret not found")
+	errJWTSecretNotFound   = errors.New("jwt secret not found")
+	errInvalidClaimsFormat = errors.New("invalid claims format")
 )
 
 //go:generate mockgen -package service -destination ./user_token_service_mock.go -mock_names UserTokenService=MockUserTokenService github.com/sean-ahn/user/backend/server/service UserTokenService
 
 type UserTokenService interface {
 	Issue(context.Context, *model.User) (string, string, error)
-	Refresh(context.Context, *model.User, string) (string, string, error)
+	Refresh(context.Context, string) (string, string, error)
 	Revoke(context.Context, *model.User, string) error
 }
 
@@ -45,7 +47,7 @@ type UserJWTTokenService struct {
 var _ UserTokenService = (*UserJWTTokenService)(nil)
 
 type JWTClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 
 	UserID string `json:"user_id"`
 }
@@ -63,6 +65,86 @@ func (s *UserJWTTokenService) Issue(ctx context.Context, user *model.User) (stri
 		return "", "", err
 	}
 
+	return s.generateTokens(user, secret)
+}
+
+func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
+	var (
+		user   *model.User
+		secret []byte
+	)
+
+	if _, err := jwt.ParseWithClaims(refreshToken, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		claims, ok := token.Claims.(*JWTClaims)
+		if !ok {
+			return nil, errors.WithStack(errInvalidClaimsFormat)
+		}
+		if len(claims.Audience) != 1 {
+			return nil, errors.WithStack(errInvalidClaimsFormat)
+		}
+		userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
+		if err != nil {
+			return nil, errors.WithStack(errInvalidClaimsFormat)
+		}
+
+		sec, err := s.getSecretByAudience(ctx, claims.Audience[0])
+		if err != nil {
+			return nil, err
+		}
+
+		u, err := mysql.GetUser(ctx, s.db, int(userID64))
+		if err != nil {
+			return nil, err
+		}
+
+		user, secret = u, sec
+
+		return sec, nil
+	}); err != nil {
+		switch x := errors.Cause(err).(type) {
+		case nil:
+		case jwt.ValidationError:
+			if x.Errors == jwt.ValidationErrorExpired {
+				return "", "", err
+			}
+			if x.Errors == jwt.ValidationErrorUnverifiable {
+				return "", "", errors.WithStack(x.Inner)
+			}
+		default:
+			return "", "", err
+		}
+	}
+
+	return s.generateTokens(user, secret)
+}
+
+func (s *UserJWTTokenService) Revoke(ctx context.Context, user *model.User, refreshToken string) error {
+	panic("implement me")
+}
+
+func (s *UserJWTTokenService) newClaimsPair(user *model.User) (JWTClaims, JWTClaims) {
+	now := s.clock.Now()
+	return JWTClaims{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Audience:  []string{s.getAudience(user)},
+				ExpiresAt: jwt.NewNumericDate(now.Add(s.accessTokenExpiresIn)),
+				IssuedAt:  jwt.NewNumericDate(now),
+				Issuer:    issuer,
+			},
+			UserID: strconv.FormatInt(int64(user.UserID), 10),
+		}, JWTClaims{
+			RegisteredClaims: jwt.RegisteredClaims{
+				ID:        uuid.New().String(),
+				Audience:  []string{s.getAudience(user)},
+				ExpiresAt: jwt.NewNumericDate(now.Add(s.refreshTokenExpiresIn)),
+				IssuedAt:  jwt.NewNumericDate(now),
+				Issuer:    issuer,
+			},
+			UserID: strconv.FormatInt(int64(user.UserID), 10),
+		}
+}
+
+func (s *UserJWTTokenService) generateTokens(user *model.User, secret []byte) (string, string, error) {
 	accessTokenClaims, refreshTokenClaims := s.newClaimsPair(user)
 
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims).SignedString(secret)
@@ -78,38 +160,12 @@ func (s *UserJWTTokenService) Issue(ctx context.Context, user *model.User) (stri
 	return accessToken, refreshToken, nil
 }
 
-func (s *UserJWTTokenService) Refresh(ctx context.Context, user *model.User, refreshToken string) (string, string, error) {
-	panic("implement me")
-}
-
-func (s *UserJWTTokenService) Revoke(ctx context.Context, user *model.User, refreshToken string) error {
-	panic("implement me")
-}
-
-func (s *UserJWTTokenService) newClaimsPair(user *model.User) (JWTClaims, JWTClaims) {
-	now := s.clock.Now()
-	return JWTClaims{
-			StandardClaims: jwt.StandardClaims{
-				Audience:  s.getAudience(user),
-				ExpiresAt: now.Add(s.accessTokenExpiresIn).Unix(),
-				IssuedAt:  now.Unix(),
-				Issuer:    issuer,
-			},
-			UserID: strconv.FormatInt(int64(user.UserID), 10),
-		}, JWTClaims{
-			StandardClaims: jwt.StandardClaims{
-				Id:        uuid.New().String(),
-				Audience:  s.getAudience(user),
-				ExpiresAt: now.Add(s.refreshTokenExpiresIn).Unix(),
-				IssuedAt:  now.Unix(),
-				Issuer:    issuer,
-			},
-			UserID: strconv.FormatInt(int64(user.UserID), 10),
-		}
-}
-
 func (s *UserJWTTokenService) getSecret(ctx context.Context, user *model.User) ([]byte, error) {
-	jas, err := model.JWTAudienceSecrets(model.JWTAudienceSecretWhere.Audience.EQ(s.getAudience(user))).One(ctx, s.db)
+	return s.getSecretByAudience(ctx, s.getAudience(user))
+}
+
+func (s *UserJWTTokenService) getSecretByAudience(ctx context.Context, aud string) ([]byte, error) {
+	jas, err := model.JWTAudienceSecrets(model.JWTAudienceSecretWhere.Audience.EQ(aud)).One(ctx, s.db)
 	if errors.Cause(err) == sql.ErrNoRows {
 		return nil, errors.WithStack(errJWTSecretNotFound)
 	}

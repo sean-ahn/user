@@ -53,9 +53,9 @@ func (mr *MockUserTokenServiceMockRecorder) Issue(arg0, arg1 interface{}) *gomoc
 }
 
 // Refresh mocks base method.
-func (m *MockUserTokenService) Refresh(arg0 context.Context, arg1 *model.User, arg2 string) (string, string, error) {
+func (m *MockUserTokenService) Refresh(arg0 context.Context, arg1 string) (string, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Refresh", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Refresh", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
@@ -63,9 +63,9 @@ func (m *MockUserTokenService) Refresh(arg0 context.Context, arg1 *model.User, a
 }
 
 // Refresh indicates an expected call of Refresh.
-func (mr *MockUserTokenServiceMockRecorder) Refresh(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *MockUserTokenServiceMockRecorder) Refresh(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Refresh", reflect.TypeOf((*MockUserTokenService)(nil).Refresh), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Refresh", reflect.TypeOf((*MockUserTokenService)(nil).Refresh), arg0, arg1)
 }
 
 // Revoke mocks base method.
