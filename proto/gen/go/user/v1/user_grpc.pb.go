@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	// 로그인
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
+	// 로그아웃
+	SignOut(ctx context.Context, in *SignOutRequest, opts ...grpc.CallOption) (*SignOutResponse, error)
 	// 토큰 갱신
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 }
@@ -41,6 +43,15 @@ func (c *userServiceClient) SignIn(ctx context.Context, in *SignInRequest, opts 
 	return out, nil
 }
 
+func (c *userServiceClient) SignOut(ctx context.Context, in *SignOutRequest, opts ...grpc.CallOption) (*SignOutResponse, error) {
+	out := new(SignOutResponse)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/SignOut", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
 	out := new(RefreshTokenResponse)
 	err := c.cc.Invoke(ctx, "/user.v1.UserService/RefreshToken", in, out, opts...)
@@ -56,6 +67,8 @@ func (c *userServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 type UserServiceServer interface {
 	// 로그인
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
+	// 로그아웃
+	SignOut(context.Context, *SignOutRequest) (*SignOutResponse, error)
 	// 토큰 갱신
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 }
@@ -66,6 +79,9 @@ type UnimplementedUserServiceServer struct {
 
 func (UnimplementedUserServiceServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
+}
+func (UnimplementedUserServiceServer) SignOut(context.Context, *SignOutRequest) (*SignOutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignOut not implemented")
 }
 func (UnimplementedUserServiceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
@@ -100,6 +116,24 @@ func _UserService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SignOut_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignOutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SignOut(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.UserService/SignOut",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SignOut(ctx, req.(*SignOutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RefreshTokenRequest)
 	if err := dec(in); err != nil {
@@ -128,6 +162,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignIn",
 			Handler:    _UserService_SignIn_Handler,
+		},
+		{
+			MethodName: "SignOut",
+			Handler:    _UserService_SignOut_Handler,
 		},
 		{
 			MethodName: "RefreshToken",
