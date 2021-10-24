@@ -89,7 +89,17 @@
       }
     },
     "v1SignInResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "title": "format: JWT"
+        },
+        "refreshToken": {
+          "type": "string",
+          "title": "format: JWT"
+        }
+      }
     }
   }
 }
