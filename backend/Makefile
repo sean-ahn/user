@@ -4,8 +4,8 @@ run:
 
 .PHONY: format
 format:
-	@go install github.com/incu6us/goimports-reviser@latest
-	find . -name "*.go" -print0 | xargs -0 -I {} goimports-reviser -rm-unused -project-name github.com/sean-ahn -file-path {}
+	@go install golang.org/x/tools/cmd/goimports@latest
+	goimports -local github.com/sean-ahn -w .
 	gofmt -s -w .
 
 .PHONY: lint
