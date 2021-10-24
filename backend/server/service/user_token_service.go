@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	mysqldriver "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -24,8 +25,11 @@ const (
 )
 
 var (
+	ErrTokenRevocationFailed = errors.New("token revocation failed")
+
 	errJWTSecretNotFound   = errors.New("jwt secret not found")
 	errInvalidClaimsFormat = errors.New("invalid claims format")
+	errRevokedToken        = errors.New("revoked token")
 	errExpiredToken        = errors.New("expired token")
 )
 
@@ -34,7 +38,7 @@ var (
 type UserTokenService interface {
 	Issue(context.Context, *model.User) (string, string, error)
 	Refresh(context.Context, string) (string, string, error)
-	Revoke(context.Context, *model.User, string) error
+	Revoke(context.Context, string) error
 }
 
 type UserJWTTokenService struct {
@@ -70,23 +74,74 @@ func (s *UserJWTTokenService) Issue(ctx context.Context, user *model.User) (stri
 }
 
 func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
-	var (
-		user   *model.User
-		secret []byte
-	)
+	token, err := s.parseToken(ctx, refreshToken)
+	if err != nil {
+		return "", "", err
+	}
 
-	if _, err := jwt.ParseWithClaims(refreshToken, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		claims, ok := token.Claims.(*JWTClaims)
-		if !ok {
-			return nil, errors.WithStack(errInvalidClaimsFormat)
+	claims := token.Claims.(*JWTClaims)
+	if claims.ID == "" {
+		return "", "", errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
+	if err != nil {
+		return "", "", errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	jd, err := mysql.FindJWTDenylistByJTI(ctx, s.db, claims.ID)
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
+		return "", "", err
+	}
+	if jd != nil {
+		return "", "", errors.WithStack(errRevokedToken)
+	}
+
+	user, err := mysql.GetUser(ctx, s.db, int(userID64))
+	if err != nil {
+		return "", "", err
+	}
+
+	secret, err := s.getSecret(ctx, user)
+	if err != nil {
+		return "", "", err
+	}
+
+	return s.generateTokens(user, secret)
+}
+
+func (s *UserJWTTokenService) Revoke(ctx context.Context, refreshToken string) error {
+	token, err := s.parseToken(ctx, refreshToken)
+	if err != nil {
+		return errors.Wrap(ErrTokenRevocationFailed, err.Error())
+	}
+
+	claims := token.Claims.(*JWTClaims)
+	if claims.ID == "" {
+		return errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
+	if err != nil {
+		return errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	jd := &model.JWTDenylist{
+		UserID: int(userID64),
+		Jti:    claims.ID,
+	}
+	if err := jd.Insert(ctx, s.db, boil.Infer()); err != nil {
+		if me, ok := errors.Cause(err).(*mysqldriver.MySQLError); !ok || me.Number != mysql.ErrorCodeDuplicateEntry {
+			return errors.Wrap(ErrTokenRevocationFailed, err.Error())
 		}
-		if claims.Issuer != issuer {
-			return nil, errors.WithStack(errInvalidClaimsFormat)
-		}
-		if len(claims.Audience) != 1 {
-			return nil, errors.WithStack(errInvalidClaimsFormat)
-		}
-		userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
+	}
+
+	return nil
+}
+
+func (s *UserJWTTokenService) parseToken(ctx context.Context, token string) (*jwt.Token, error) {
+	tk, err := jwt.ParseWithClaims(token, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		claims, err := s.parseClaims(token.Claims)
 		if err != nil {
 			return nil, errors.WithStack(errInvalidClaimsFormat)
 		}
@@ -95,35 +150,43 @@ func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) 
 		if err != nil {
 			return nil, err
 		}
-
-		u, err := mysql.GetUser(ctx, s.db, int(userID64))
-		if err != nil {
-			return nil, err
-		}
-
-		user, secret = u, sec
-
 		return sec, nil
-	}); err != nil {
+	})
+	if err != nil {
 		switch x := errors.Cause(err).(type) {
 		case nil:
 		case *jwt.ValidationError:
 			if x.Errors == jwt.ValidationErrorExpired {
-				return "", "", errors.WithStack(errExpiredToken)
+				return nil, errors.WithStack(errExpiredToken)
 			}
 			if x.Errors == jwt.ValidationErrorUnverifiable {
-				return "", "", errors.WithStack(x.Inner)
+				return nil, errors.WithStack(x.Inner)
 			}
+			return nil, x
 		default:
-			return "", "", err
+			return nil, err
 		}
 	}
 
-	return s.generateTokens(user, secret)
+	return tk, nil
 }
 
-func (s *UserJWTTokenService) Revoke(ctx context.Context, user *model.User, refreshToken string) error {
-	panic("implement me")
+func (s *UserJWTTokenService) parseClaims(c jwt.Claims) (*JWTClaims, error) {
+	claims, ok := c.(*JWTClaims)
+	if !ok {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+	if claims.Issuer != issuer {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+	if len(claims.Audience) != 1 {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+	if _, err := strconv.ParseInt(claims.UserID, 10, 32); err != nil {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	return claims, nil
 }
 
 func (s *UserJWTTokenService) newClaimsPair(user *model.User) (JWTClaims, JWTClaims) {

@@ -63,3 +63,23 @@ func NewJWTAudienceSecretRows(secrets []*model.JWTAudienceSecret) *sqlmock.Rows 
 	}
 	return rows
 }
+
+func NewJWTDenylistRows(denylists []*model.JWTDenylist) *sqlmock.Rows {
+	rows := sqlmock.NewRows([]string{
+		model.JWTDenylistColumns.JWTDenylistID,
+		model.JWTDenylistColumns.UserID,
+		model.JWTDenylistColumns.Jti,
+		model.JWTDenylistColumns.CreatedAt,
+		model.JWTDenylistColumns.UpdatedAt,
+	})
+	for _, d := range denylists {
+		rows.AddRow(
+			d.JWTDenylistID,
+			d.UserID,
+			d.Jti,
+			d.CreatedAt,
+			d.UpdatedAt,
+		)
+	}
+	return rows
+}
