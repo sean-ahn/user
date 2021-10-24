@@ -59,8 +59,8 @@ CREATE TABLE `sms_otp_verification`
     `verification_token`  varchar(36) NOT NULL COMMENT '인증 토큰',  -- format: uuid v4
     `phone_number`        varchar(15) NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
     `otp_code`            varchar(6)  NOT NULL COMMENT '인증 코드',
-    `verification_trials` int(11)     NOT NULL DEFAULT 0 COMMENT '검증 시도 횟수',
-    `is_verified`         tinyint(1)  NOT NULL DEFAULT 0 COMMENT '인증 여부',
+    `verification_trials` int(11)     NOT NULL COMMENT '검증 시도 횟수',
+    `is_verified`         tinyint(1)  NOT NULL COMMENT '인증 여부',
     `expires_at`          timestamp   NOT NULL COMMENT '만료 일시',
     `created_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`          timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -138,8 +138,8 @@ type smsOtpVerificationL struct{}
 
 var (
 	smsOtpVerificationAllColumns            = []string{"sms_otp_verification_id", "verification_token", "phone_number", "otp_code", "verification_trials", "is_verified", "expires_at", "created_at", "updated_at"}
-	smsOtpVerificationColumnsWithoutDefault = []string{"verification_token", "phone_number", "otp_code", "expires_at"}
-	smsOtpVerificationColumnsWithDefault    = []string{"sms_otp_verification_id", "verification_trials", "is_verified", "created_at", "updated_at"}
+	smsOtpVerificationColumnsWithoutDefault = []string{"verification_token", "phone_number", "otp_code", "verification_trials", "is_verified", "expires_at"}
+	smsOtpVerificationColumnsWithDefault    = []string{"sms_otp_verification_id", "created_at", "updated_at"}
 	smsOtpVerificationPrimaryKeyColumns     = []string{"sms_otp_verification_id"}
 )
 
