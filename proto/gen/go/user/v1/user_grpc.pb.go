@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type UserServiceClient interface {
 	// SMS OTP 요청
 	RequestSmsOtp(ctx context.Context, in *RequestSmsOtpRequest, opts ...grpc.CallOption) (*RequestSmsOtpResponse, error)
+	// SMS OTP 검증
+	VerifySmsOtp(ctx context.Context, in *VerifySmsOtpRequest, opts ...grpc.CallOption) (*VerifySmsOtpResponse, error)
 	// 로그인
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
 	// 로그아웃
@@ -39,6 +41,15 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 func (c *userServiceClient) RequestSmsOtp(ctx context.Context, in *RequestSmsOtpRequest, opts ...grpc.CallOption) (*RequestSmsOtpResponse, error) {
 	out := new(RequestSmsOtpResponse)
 	err := c.cc.Invoke(ctx, "/user.v1.UserService/RequestSmsOtp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) VerifySmsOtp(ctx context.Context, in *VerifySmsOtpRequest, opts ...grpc.CallOption) (*VerifySmsOtpResponse, error) {
+	out := new(VerifySmsOtpResponse)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/VerifySmsOtp", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,6 +89,8 @@ func (c *userServiceClient) RefreshToken(ctx context.Context, in *RefreshTokenRe
 type UserServiceServer interface {
 	// SMS OTP 요청
 	RequestSmsOtp(context.Context, *RequestSmsOtpRequest) (*RequestSmsOtpResponse, error)
+	// SMS OTP 검증
+	VerifySmsOtp(context.Context, *VerifySmsOtpRequest) (*VerifySmsOtpResponse, error)
 	// 로그인
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
 	// 로그아웃
@@ -92,6 +105,9 @@ type UnimplementedUserServiceServer struct {
 
 func (UnimplementedUserServiceServer) RequestSmsOtp(context.Context, *RequestSmsOtpRequest) (*RequestSmsOtpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestSmsOtp not implemented")
+}
+func (UnimplementedUserServiceServer) VerifySmsOtp(context.Context, *VerifySmsOtpRequest) (*VerifySmsOtpResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifySmsOtp not implemented")
 }
 func (UnimplementedUserServiceServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
@@ -128,6 +144,24 @@ func _UserService_RequestSmsOtp_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).RequestSmsOtp(ctx, req.(*RequestSmsOtpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_VerifySmsOtp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifySmsOtpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerifySmsOtp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.UserService/VerifySmsOtp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerifySmsOtp(ctx, req.(*VerifySmsOtpRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -196,6 +230,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestSmsOtp",
 			Handler:    _UserService_RequestSmsOtp_Handler,
+		},
+		{
+			MethodName: "VerifySmsOtp",
+			Handler:    _UserService_VerifySmsOtp_Handler,
 		},
 		{
 			MethodName: "SignIn",

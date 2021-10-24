@@ -12,6 +12,13 @@ service UserService {
       body: "*"
     };
   }
+  // SMS OTP 검증
+  rpc VerifySmsOtp(VerifySmsOtpRequest) returns (VerifySmsOtpResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/otp/sms/verify"
+      body: "*"
+    };
+  }
   // 로그인
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
@@ -47,6 +54,14 @@ message RequestSmsOtpResponse {
   // e.g. `180000` means 3 minutes
   int32 expires_in_ms = 2;
 }
+
+message VerifySmsOtpRequest {
+  // format: uuid v4
+  string verification_token = 1;
+  string sms_otp_code = 2;
+}
+
+message VerifySmsOtpResponse {}
 
 message SignInRequest {
   string id = 1;
