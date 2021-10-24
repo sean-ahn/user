@@ -6,6 +6,11 @@ service SmsService {
   rpc Send(SendRequest) returns (SendResponse);
 }
 
-message SendRequest {}
+message SendRequest {
+  // target phone number
+  // format: E.167
+  string to = 1;
+  string message = 2;
+}
 
 message SendResponse {}
