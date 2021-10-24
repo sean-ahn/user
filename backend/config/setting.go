@@ -18,6 +18,10 @@ type Setting struct {
 
 	AccessTokenExpiresInMs  int
 	RefreshTokenExpiresInMs int
+
+	SMSOTPCodeLength int
+
+	SMSV1ServiceEndpoint string
 }
 
 func NewSetting() Setting {
@@ -39,6 +43,9 @@ func NewSetting() Setting {
 
 		AccessTokenExpiresInMs:  mustAtoi(getEnv("ACCESS_TOKEN_EXPIRES_IN_MS", "600000")),      // 10 min
 		RefreshTokenExpiresInMs: mustAtoi(getEnv("REFRESH_TOKEN_EXPIRES_IN_MS", "1209600000")), // 14 days
+
+		SMSOTPCodeLength:     mustAtoi(getEnv("SMS_OTP_CODE_LENGTH", "6")),
+		SMSV1ServiceEndpoint: getEnv("SMS_V1_SERVICE_ENDPOINT", ""),
 	}
 }
 

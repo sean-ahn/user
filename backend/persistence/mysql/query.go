@@ -24,3 +24,11 @@ func FindJWTDenylistByJTI(ctx context.Context, exec boil.ContextExecutor, jti st
 	}
 	return d, nil
 }
+
+func FindSMSOTPVerificationByVerificationToken(ctx context.Context, exec boil.ContextExecutor, token string) (*model.SMSOtpVerification, error) {
+	v, err := model.SMSOtpVerifications(model.SMSOtpVerificationWhere.VerificationToken.EQ(token)).One(ctx, exec)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return v, nil
+}

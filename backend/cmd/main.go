@@ -15,6 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	"github.com/sean-ahn/user/backend/client"
 	"github.com/sean-ahn/user/backend/config"
 	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/persistence/mysql"
@@ -56,7 +57,14 @@ func run() error {
 		time.Duration(setting.RefreshTokenExpiresInMs)*time.Millisecond,
 	)
 
-	cfg := config.New(setting, db, crypto.NewScryptHasher(salt), userTokenService)
+	cfg := config.New(
+		setting,
+		clock,
+		db,
+		crypto.NewScryptHasher(salt),
+		client.GetSmsV1Service(setting.SMSV1ServiceEndpoint),
+		userTokenService,
+	)
 
 	grpcServer, err := server.NewGRPCServer(cfg)
 	if err != nil {
