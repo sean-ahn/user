@@ -1,12 +1,16 @@
-.PHONY: format-proto
-format-proto:
+.PHONY: format
+format:
 	find . -name "*.proto" -print0 | xargs -0 -I {} clang-format -i {}
 
-.PHONY: check-proto
-check-proto:
+.PHONY: check
+check:
 	find . -name "*.proto" -print0 | xargs -0 -I {} clang-format --dry-run --Werror {}
 
-.PHONY: lint-proto
-lint-proto:
-	make check-proto
-	buf lint proto
+.PHONY: lint
+lint:
+	@$(MAKE) check
+	buf lint
+
+.PHONY: generate
+generate:
+	buf generate
