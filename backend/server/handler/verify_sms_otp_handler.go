@@ -56,7 +56,7 @@ func VerifySmsOtp(clock clockwork.Clock, db *sql.DB) VerifySmsOtpHandlerFunc {
 			return nil, status.Error(codes.InvalidArgument, "verification maximum trials exceeded")
 		}
 
-		otpCodeMatched := verification.OtpCode != req.SmsOtpCode
+		otpCodeMatched := verification.OtpCode == req.SmsOtpCode
 
 		targets := []string{model.SMSOtpVerificationColumns.VerificationTrials}
 		verification.VerificationTrials += 1
