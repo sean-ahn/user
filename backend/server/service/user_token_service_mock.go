@@ -6,6 +6,7 @@ package service
 
 import (
 	context "context"
+	sql "database/sql"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -80,4 +81,18 @@ func (m *MockUserTokenService) Revoke(arg0 context.Context, arg1 string) error {
 func (mr *MockUserTokenServiceMockRecorder) Revoke(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Revoke", reflect.TypeOf((*MockUserTokenService)(nil).Revoke), arg0, arg1)
+}
+
+// RevokeAll mocks base method.
+func (m *MockUserTokenService) RevokeAll(arg0 context.Context, arg1 *model.User, arg2 *sql.Tx) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RevokeAll", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RevokeAll indicates an expected call of RevokeAll.
+func (mr *MockUserTokenServiceMockRecorder) RevokeAll(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeAll", reflect.TypeOf((*MockUserTokenService)(nil).RevokeAll), arg0, arg1, arg2)
 }

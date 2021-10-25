@@ -39,6 +39,7 @@ type UserTokenService interface {
 	Issue(context.Context, *model.User) (string, string, error)
 	Refresh(context.Context, string) (string, string, error)
 	Revoke(context.Context, string) error
+	RevokeAll(context.Context, *model.User, *sql.Tx) error
 }
 
 type UserJWTTokenService struct {
@@ -138,12 +139,30 @@ func (s *UserJWTTokenService) Revoke(ctx context.Context, refreshToken string) e
 		Jti:    claims.ID,
 	}
 	if err := jd.Insert(ctx, s.db, boil.Infer()); err != nil {
-		if me, ok := errors.Cause(err).(*mysqldriver.MySQLError); !ok || me.Number != mysql.ErrorCodeDuplicateEntry {
+		if merr, ok := errors.Cause(err).(*mysqldriver.MySQLError); !ok || merr.Number != mysql.ErrorCodeDuplicateEntry {
 			return errors.Wrap(ErrTokenRevocationFailed, err.Error())
 		}
 	}
 
 	return nil
+}
+
+func (s *UserJWTTokenService) RevokeAll(ctx context.Context, user *model.User, tx *sql.Tx) error {
+	var exec boil.ContextExecutor = s.db
+	if tx != nil {
+		exec = tx
+	}
+
+	if _, err := model.JWTAudienceSecrets(
+		model.JWTAudienceSecretWhere.Audience.EQ(s.getAudience(user)),
+	).DeleteAll(ctx, exec); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (s *UserJWTTokenService) getAudience(user *model.User) string {
+	return "user:" + strconv.FormatInt(int64(user.UserID), 10)
 }
 
 func (s *UserJWTTokenService) parseToken(ctx context.Context, token string) (*jwt.Token, error) {
@@ -280,8 +299,4 @@ func (s *UserJWTTokenService) newSecret(user *model.User) ([]byte, error) {
 	h.Write(ts)
 
 	return h.Sum(nil), nil
-}
-
-func (s *UserJWTTokenService) getAudience(user *model.User) string {
-	return "user:" + strconv.FormatInt(int64(user.UserID), 10)
 }

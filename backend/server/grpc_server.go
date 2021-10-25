@@ -51,6 +51,10 @@ func (s *UserServer) RefreshToken(ctx context.Context, req *userv1.RefreshTokenR
 	return handler.RefreshToken(s.cfg.UserTokenService())(ctx, req)
 }
 
+func (s *UserServer) ResetPassword(ctx context.Context, req *userv1.ResetPasswordRequest) (*userv1.ResetPasswordResponse, error) {
+	return handler.ResetPassword(s.cfg.Clock(), s.cfg.DB(), s.cfg.PasswordHasher(), s.cfg.UserTokenService())(ctx, req)
+}
+
 func NewGRPCServer(cfg config.Config) (*grpc.Server, error) {
 	logrus.ErrorKey = "grpc.error"
 	log := logrus.New()
