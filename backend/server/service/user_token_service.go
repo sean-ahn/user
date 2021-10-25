@@ -40,6 +40,7 @@ type UserTokenService interface {
 	Refresh(context.Context, string) (string, string, error)
 	Revoke(context.Context, string) error
 	RevokeAll(context.Context, *model.User, *sql.Tx) error
+	GetUser(context.Context, string) (*model.User, error)
 }
 
 type UserJWTTokenService struct {
@@ -159,6 +160,29 @@ func (s *UserJWTTokenService) RevokeAll(ctx context.Context, user *model.User, t
 		return errors.WithStack(err)
 	}
 	return nil
+}
+
+func (s *UserJWTTokenService) GetUser(ctx context.Context, accessToken string) (*model.User, error) {
+	token, err := s.parseToken(ctx, accessToken)
+	if err != nil {
+		return nil, errors.Wrap(ErrTokenRevocationFailed, err.Error())
+	}
+
+	claims := token.Claims.(*JWTClaims)
+	if claims.ID == "" {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
+	if err != nil {
+		return nil, errors.WithStack(errInvalidClaimsFormat)
+	}
+
+	user, err := mysql.GetUser(ctx, s.db, int(userID64))
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (s *UserJWTTokenService) getAudience(user *model.User) string {
