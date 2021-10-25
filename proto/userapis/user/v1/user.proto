@@ -91,7 +91,7 @@ message VerifySmsOtpRequest {
 message VerifySmsOtpResponse {}
 
 message ConfirmEmailRequest {
-  string confirmation_token = 1;
+  string confirmation_code = 1;
 }
 
 message ConfirmEmailResponse {}

@@ -17,11 +17,11 @@ type ConfirmEmailHandlerFunc func(ctx context.Context, req *userv1.ConfirmEmailR
 
 func ConfirmEmail(db *sql.DB) ConfirmEmailHandlerFunc {
 	return func(ctx context.Context, req *userv1.ConfirmEmailRequest) (*userv1.ConfirmEmailResponse, error) {
-		if req.ConfirmationToken == "" {
+		if req.ConfirmationCode == "" {
 			return nil, status.Error(codes.InvalidArgument, "no confirmation_code")
 		}
 
-		user, err := mysql.FindUserByEmail(ctx, db, req.ConfirmationToken)
+		user, err := mysql.FindUserByEmail(ctx, db, req.ConfirmationCode)
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, "invalid confirmation code")
 		}

@@ -335,7 +335,7 @@
     "v1ConfirmEmailRequest": {
       "type": "object",
       "properties": {
-        "confirmationToken": {
+        "confirmationCode": {
           "type": "string"
         }
       }
