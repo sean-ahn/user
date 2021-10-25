@@ -35,6 +35,10 @@ func (s *UserServer) VerifySmsOtp(ctx context.Context, req *userv1.VerifySmsOtpR
 	return handler.VerifySmsOtp(s.cfg.Clock(), s.cfg.DB())(ctx, req)
 }
 
+func (s *UserServer) ConfirmEmail(ctx context.Context, req *userv1.ConfirmEmailRequest) (*userv1.ConfirmEmailResponse, error) {
+	return handler.ConfirmEmail(s.cfg.DB())(ctx, req)
+}
+
 func (s *UserServer) Register(ctx context.Context, req *userv1.RegisterRequest) (*userv1.RegisterResponse, error) {
 	return handler.Register(s.cfg.Clock(), s.cfg.DB(), s.cfg.PasswordHasher())(ctx, req)
 }
