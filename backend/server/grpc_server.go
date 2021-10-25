@@ -35,6 +35,10 @@ func (s *UserServer) VerifySmsOtp(ctx context.Context, req *userv1.VerifySmsOtpR
 	return handler.VerifySmsOtp(s.cfg.Clock(), s.cfg.DB())(ctx, req)
 }
 
+func (s *UserServer) Register(ctx context.Context, req *userv1.RegisterRequest) (*userv1.RegisterResponse, error) {
+	return handler.Register(s.cfg.Clock(), s.cfg.DB(), s.cfg.PasswordHasher())(ctx, req)
+}
+
 func (s *UserServer) SignIn(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error) {
 	return handler.SignIn(s.cfg.PasswordHasher(), s.cfg.DB(), s.cfg.UserTokenService())(ctx, req)
 }

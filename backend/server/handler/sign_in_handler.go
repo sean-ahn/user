@@ -46,6 +46,9 @@ func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserToken
 		switch detectIDType(req.Id) {
 		case IDTypeEmail:
 			findByID = findUserByEmail
+			if !isValidEmail(req.Id) {
+				return nil, status.Error(codes.InvalidArgument, "invalid id format")
+			}
 		case IDTypePhoneNumber:
 			findByID = findUserByPhoneNumber
 			norm, err := normalizePhoneNumber(id)

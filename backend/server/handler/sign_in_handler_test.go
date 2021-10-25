@@ -47,13 +47,13 @@ func TestSignIn(t *testing.T) {
 				)).WithArgs(
 					"+821012345678",
 				).WillReturnRows(test.NewUserRows([]*model.User{
-					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
+					{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
 			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
 				return func(mock *service.MockUserTokenService) {
 					mock.EXPECT().
-						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
+						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
 						Return("access_token", "refresh_token", nil)
 				}
 			},
@@ -62,20 +62,20 @@ func TestSignIn(t *testing.T) {
 		},
 		{
 			name: "sign in with verified email",
-			req:  &userv1.SignInRequest{Id: "john.doe@naver.com", Password: "P@ssw0rd"},
+			req:  &userv1.SignInRequest{Id: "john.doe@example.com", Password: "P@ssw0rd"},
 			dbExpectFunc: func(m sqlmock.Sqlmock) {
 				m.ExpectQuery(regexp.QuoteMeta(
 					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
 				)).WithArgs(
-					"john.doe@naver.com",
+					"john.doe@example.com",
 				).WillReturnRows(test.NewUserRows([]*model.User{
-					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
+					{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
 			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
 				return func(mock *service.MockUserTokenService) {
 					mock.EXPECT().
-						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
+						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
 						Return("access_token", "refresh_token", nil)
 				}
 			},
@@ -84,14 +84,14 @@ func TestSignIn(t *testing.T) {
 		},
 		{
 			name: "sign in with unverified email",
-			req:  &userv1.SignInRequest{Id: "john.doe@naver.com", Password: "P@ssw0rd"},
+			req:  &userv1.SignInRequest{Id: "john.doe@example.com", Password: "P@ssw0rd"},
 			dbExpectFunc: func(m sqlmock.Sqlmock) {
 				m.ExpectQuery(regexp.QuoteMeta(
 					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
 				)).WithArgs(
-					"john.doe@naver.com",
+					"john.doe@example.com",
 				).WillReturnRows(test.NewUserRows([]*model.User{
-					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: false, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
+					{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: false, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
 			expectedCode: codes.Unauthenticated,
@@ -99,12 +99,12 @@ func TestSignIn(t *testing.T) {
 		},
 		{
 			name: "sign in with not existing email",
-			req:  &userv1.SignInRequest{Id: "john.doe@naver.com", Password: "P@ssw0rd"},
+			req:  &userv1.SignInRequest{Id: "john.doe@example.com", Password: "P@ssw0rd"},
 			dbExpectFunc: func(m sqlmock.Sqlmock) {
 				m.ExpectQuery(regexp.QuoteMeta(
 					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
 				)).WithArgs(
-					"john.doe@naver.com",
+					"john.doe@example.com",
 				).WillReturnError(
 					sql.ErrNoRows,
 				)
@@ -121,7 +121,7 @@ func TestSignIn(t *testing.T) {
 				)).WithArgs(
 					"+821012345678",
 				).WillReturnRows(test.NewUserRows([]*model.User{
-					{UserID: 1, Email: "john.doe@naver.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
+					{UserID: 1, Email: "john.doe@example.com", IsEmailVerified: true, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
 				}))
 			},
 			expectedCode: codes.Unauthenticated,

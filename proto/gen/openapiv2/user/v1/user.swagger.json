@@ -82,6 +82,39 @@
         ]
       }
     },
+    "/user/v1/register": {
+      "post": {
+        "summary": "회원가입",
+        "operationId": "UserService_Register",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RegisterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/sign-in": {
       "post": {
         "summary": "로그인",
@@ -232,6 +265,31 @@
         }
       }
     },
+    "v1RegisterRequest": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "NOTE: this may not be real name."
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string",
+          "title": "if not exists, nickname set to name"
+        }
+      }
+    },
+    "v1RegisterResponse": {
+      "type": "object"
+    },
     "v1RequestSmsOtpRequest": {
       "type": "object",
       "properties": {
@@ -259,7 +317,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "string",
+          "title": "email or (E.167 formatted) phone number"
         },
         "password": {
           "type": "string"
@@ -295,8 +354,7 @@
       "type": "object",
       "properties": {
         "verificationToken": {
-          "type": "string",
-          "title": "format: uuid v4"
+          "type": "string"
         },
         "smsOtpCode": {
           "type": "string"
