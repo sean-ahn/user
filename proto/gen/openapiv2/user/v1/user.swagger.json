@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/user/v1/email/verify": {
+    "/user/v1/email/confirm": {
       "post": {
         "summary": "이메일 검증",
         "operationId": "UserService_ConfirmEmail",

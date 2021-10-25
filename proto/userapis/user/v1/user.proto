@@ -22,7 +22,7 @@ service UserService {
   // 이메일 검증
   rpc ConfirmEmail(ConfirmEmailRequest) returns (ConfirmEmailResponse) {
     option (google.api.http) = {
-      post: "/user/v1/email/verify"
+      post: "/user/v1/email/confirm"
       body: "*"
     };
   }

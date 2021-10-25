@@ -379,7 +379,7 @@ func RegisterUserServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/user.v1.UserService/ConfirmEmail", runtime.WithHTTPPathPattern("/user/v1/email/verify"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/user.v1.UserService/ConfirmEmail", runtime.WithHTTPPathPattern("/user/v1/email/confirm"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -619,7 +619,7 @@ func RegisterUserServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/user.v1.UserService/ConfirmEmail", runtime.WithHTTPPathPattern("/user/v1/email/verify"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/user.v1.UserService/ConfirmEmail", runtime.WithHTTPPathPattern("/user/v1/email/confirm"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -763,7 +763,7 @@ var (
 
 	pattern_UserService_VerifySmsOtp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"user", "v1", "otp", "sms", "verify"}, ""))
 
-	pattern_UserService_ConfirmEmail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"user", "v1", "email", "verify"}, ""))
+	pattern_UserService_ConfirmEmail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"user", "v1", "email", "confirm"}, ""))
 
 	pattern_UserService_Register_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"user", "v1", "register"}, ""))
 
