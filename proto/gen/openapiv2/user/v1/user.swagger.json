@@ -82,6 +82,39 @@
         ]
       }
     },
+    "/user/v1/password/reset": {
+      "post": {
+        "summary": "비밀번호 재설정",
+        "operationId": "UserService_ResetPassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ResetPasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ResetPasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/register": {
       "post": {
         "summary": "회원가입",
@@ -312,6 +345,20 @@
           "title": "unit: millisecond\ne.g. `180000` means 3 minutes"
         }
       }
+    },
+    "v1ResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ResetPasswordResponse": {
+      "type": "object"
     },
     "v1SignInRequest": {
       "type": "object",

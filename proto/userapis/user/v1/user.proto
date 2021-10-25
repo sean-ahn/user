@@ -47,6 +47,13 @@ service UserService {
       body: "*"
     };
   }
+  // 비밀번호 재설정
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/password/reset"
+      body: "*"
+    };
+  }
 }
 
 message RequestSmsOtpRequest {
@@ -112,3 +119,10 @@ message RefreshTokenResponse {
   // format: JWT
   string refresh_token = 2;
 }
+
+message ResetPasswordRequest {
+  string verification_token = 1;
+  string new_password = 2;
+}
+
+message ResetPasswordResponse {}
