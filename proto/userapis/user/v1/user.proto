@@ -19,6 +19,13 @@ service UserService {
       body: "*"
     };
   }
+  // 이메일 검증
+  rpc ConfirmEmail(ConfirmEmailRequest) returns (ConfirmEmailResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/email/confirm"
+      body: "*"
+    };
+  }
   // 회원가입
   rpc Register(RegisterRequest) returns (RegisterResponse) {
     option (google.api.http) = {
@@ -82,6 +89,12 @@ message VerifySmsOtpRequest {
 }
 
 message VerifySmsOtpResponse {}
+
+message ConfirmEmailRequest {
+  string confirmation_code = 1;
+}
+
+message ConfirmEmailResponse {}
 
 message RegisterRequest {
   string verification_token = 1;

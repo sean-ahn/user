@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/user/v1/email/confirm": {
+      "post": {
+        "summary": "이메일 검증",
+        "operationId": "UserService_ConfirmEmail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ConfirmEmailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ConfirmEmailRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/otp/sms/request": {
       "post": {
         "summary": "SMS OTP 요청",
@@ -298,6 +331,17 @@
           }
         }
       }
+    },
+    "v1ConfirmEmailRequest": {
+      "type": "object",
+      "properties": {
+        "confirmationCode": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ConfirmEmailResponse": {
+      "type": "object"
     },
     "v1GetMyPersonalInfoResponse": {
       "type": "object",
