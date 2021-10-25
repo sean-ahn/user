@@ -54,6 +54,13 @@ service UserService {
       body: "*"
     };
   }
+  // 내 정보 조회
+  rpc GetMyPersonalInfo(GetMyPersonalInfoRequest)
+      returns (GetMyPersonalInfoResponse) {
+    option (google.api.http) = {
+      get: "/user/v1/users/me/personal-info"
+    };
+  }
 }
 
 message RequestSmsOtpRequest {
@@ -126,3 +133,18 @@ message ResetPasswordRequest {
 }
 
 message ResetPasswordResponse {}
+
+message GetMyPersonalInfoRequest {}
+
+message GetMyPersonalInfoResponse {
+  PersonalInfo personal_info = 1;
+}
+
+message PersonalInfo {
+  // NOTE: this may not be real name.
+  string name = 1;
+  string email = 2;
+  // format: E.164
+  string phone_number = 3;
+  string nickname = 4;
+}

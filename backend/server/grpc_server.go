@@ -55,6 +55,10 @@ func (s *UserServer) ResetPassword(ctx context.Context, req *userv1.ResetPasswor
 	return handler.ResetPassword(s.cfg.Clock(), s.cfg.DB(), s.cfg.PasswordHasher(), s.cfg.UserTokenService())(ctx, req)
 }
 
+func (s *UserServer) GetMyPersonalInfo(ctx context.Context, req *userv1.GetMyPersonalInfoRequest) (*userv1.GetMyPersonalInfoResponse, error) {
+	return handler.GetMyPersonalInfo(s.cfg.UserTokenService())(ctx, req)
+}
+
 func NewGRPCServer(cfg config.Config) (*grpc.Server, error) {
 	logrus.ErrorKey = "grpc.error"
 	log := logrus.New()
