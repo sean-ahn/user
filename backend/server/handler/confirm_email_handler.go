@@ -26,12 +26,12 @@ func ConfirmEmail(db *sql.DB) ConfirmEmailHandlerFunc {
 			return nil, status.Error(codes.InvalidArgument, "invalid confirmation code")
 		}
 
-		if user.IsEmailVerified {
+		if user.IsEmailConfirmed {
 			return nil, status.Error(codes.InvalidArgument, "already confirmed email")
 		}
 
-		user.IsEmailVerified = true
-		if _, err := user.Update(ctx, db, boil.Whitelist(model.UserColumns.IsEmailVerified)); err != nil {
+		user.IsEmailConfirmed = true
+		if _, err := user.Update(ctx, db, boil.Whitelist(model.UserColumns.IsEmailConfirmed)); err != nil {
 			return nil, status.Error(codes.Internal, err.Error())
 		}
 

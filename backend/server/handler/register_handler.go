@@ -61,12 +61,12 @@ func Register(clock clockwork.Clock, db *sql.DB, hasher crypto.Hasher) RegisterH
 		}
 
 		user := &model.User{
-			Name:            req.Name,
-			Email:           req.Email,
-			IsEmailVerified: false,
-			PhoneNumber:     phoneNumber,
-			Nickname:        nickname,
-			PasswordHash:    string(passwordHash),
+			Name:             req.Name,
+			Email:            req.Email,
+			IsEmailConfirmed: false,
+			PhoneNumber:      phoneNumber,
+			Nickname:         nickname,
+			PasswordHash:     string(passwordHash),
 		}
 		if err := user.Insert(ctx, db, boil.Infer()); err != nil {
 			return nil, status.Error(codes.Internal, err.Error())

@@ -81,7 +81,7 @@ func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserToken
 			return nil, status.Error(codes.Unauthenticated, signInFailureMessage)
 		}
 
-		if !user.IsEmailVerified {
+		if !user.IsEmailConfirmed {
 			return nil, status.Error(codes.Unauthenticated, "email not verified yet")
 		}
 
