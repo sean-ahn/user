@@ -19,6 +19,13 @@ service UserService {
       body: "*"
     };
   }
+  // 회원가입
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/register"
+      body: "*"
+    };
+  }
   // 로그인
   rpc SignIn(SignInRequest) returns (SignInResponse) {
     option (google.api.http) = {
@@ -56,14 +63,26 @@ message RequestSmsOtpResponse {
 }
 
 message VerifySmsOtpRequest {
-  // format: uuid v4
   string verification_token = 1;
   string sms_otp_code = 2;
 }
 
 message VerifySmsOtpResponse {}
 
+message RegisterRequest {
+  string verification_token = 1;
+  // NOTE: this may not be real name.
+  string name = 2;
+  string email = 3;
+  string password = 4;
+  // if not exists, nickname set to name
+  optional string nickname = 5;
+}
+
+message RegisterResponse {}
+
 message SignInRequest {
+  // email or (E.167 formatted) phone number
   string id = 1;
   string password = 2;
 }
