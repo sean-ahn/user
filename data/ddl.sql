@@ -3,15 +3,15 @@ USE `user`;
 
 CREATE TABLE `user`
 (
-    `user_id`           int          NOT NULL AUTO_INCREMENT COMMENT '유저 아이디',
-    `name`              varchar(10)  NOT NULL COMMENT '이름',     -- NOTE: may not be real name
-    `email`             varchar(128) NOT NULL COMMENT '이메일',
-    `is_email_verified` tinyint(1)   NOT NULL COMMENT '이메일 검증 여부',
-    `phone_number`      varchar(15)  NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
-    `nickname`          varchar(15)  NOT NULL COMMENT '닉네임',
-    `password_hash`     varchar(86)  NOT NULL COMMENT '비밀번호',   -- format: base64 encoded 32 bytes scrypt output w/ salt: 16 bytes, N: 32768, r: 8, p: 1, keyLen: 32
-    `created_at`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`        timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `user_id`            int          NOT NULL AUTO_INCREMENT COMMENT '유저 아이디',
+    `name`               varchar(10)  NOT NULL COMMENT '이름',     -- NOTE: may not be real name
+    `email`              varchar(128) NOT NULL COMMENT '이메일',
+    `is_email_confirmed` tinyint(1)   NOT NULL COMMENT '이메일 확인 여부',
+    `phone_number`       varchar(15)  NOT NULL COMMENT '핸드폰 번호', -- format: E.164 (e.g. +821012345678)
+    `nickname`           varchar(15)  NOT NULL COMMENT '닉네임',
+    `password_hash`      varchar(86)  NOT NULL COMMENT '비밀번호',   -- format: base64 encoded 32 bytes scrypt output w/ salt: 16 bytes, N: 32768, r: 8, p: 1, keyLen: 32
+    `created_at`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `user_u1` (`email`),
     UNIQUE KEY `user_u2` (`phone_number`),

@@ -54,7 +54,7 @@ func TestRegister(t *testing.T) {
 				}))
 
 				mock.ExpectExec(regexp.QuoteMeta(
-					"INSERT INTO `user` (`name`,`email`,`is_email_verified`,`phone_number`,`nickname`,`password_hash`) VALUES (?,?,?,?,?,?)",
+					"INSERT INTO `user` (`name`,`email`,`is_email_confirmed`,`phone_number`,`nickname`,`password_hash`) VALUES (?,?,?,?,?,?)",
 				)).WithArgs(
 					"name", "john.doe@example.com", false, "+821012345678", "nickname", "P@ssw0rd_hash",
 				).WillReturnResult(
