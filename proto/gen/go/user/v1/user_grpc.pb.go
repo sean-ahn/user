@@ -32,6 +32,8 @@ type UserServiceClient interface {
 	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 	// 비밀번호 재설정
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
+	// 내 정보 조회
+	GetMyPersonalInfo(ctx context.Context, in *GetMyPersonalInfoRequest, opts ...grpc.CallOption) (*GetMyPersonalInfoResponse, error)
 }
 
 type userServiceClient struct {
@@ -105,6 +107,15 @@ func (c *userServiceClient) ResetPassword(ctx context.Context, in *ResetPassword
 	return out, nil
 }
 
+func (c *userServiceClient) GetMyPersonalInfo(ctx context.Context, in *GetMyPersonalInfoRequest, opts ...grpc.CallOption) (*GetMyPersonalInfoResponse, error) {
+	out := new(GetMyPersonalInfoResponse)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/GetMyPersonalInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -123,6 +134,8 @@ type UserServiceServer interface {
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	// 비밀번호 재설정
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
+	// 내 정보 조회
+	GetMyPersonalInfo(context.Context, *GetMyPersonalInfoRequest) (*GetMyPersonalInfoResponse, error)
 }
 
 // UnimplementedUserServiceServer should be embedded to have forward compatible implementations.
@@ -149,6 +162,9 @@ func (UnimplementedUserServiceServer) RefreshToken(context.Context, *RefreshToke
 }
 func (UnimplementedUserServiceServer) ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResetPassword not implemented")
+}
+func (UnimplementedUserServiceServer) GetMyPersonalInfo(context.Context, *GetMyPersonalInfoRequest) (*GetMyPersonalInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyPersonalInfo not implemented")
 }
 
 // UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -288,6 +304,24 @@ func _UserService_ResetPassword_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetMyPersonalInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyPersonalInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetMyPersonalInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.UserService/GetMyPersonalInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetMyPersonalInfo(ctx, req.(*GetMyPersonalInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -322,6 +356,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ResetPassword",
 			Handler:    _UserService_ResetPassword_Handler,
+		},
+		{
+			MethodName: "GetMyPersonalInfo",
+			Handler:    _UserService_GetMyPersonalInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

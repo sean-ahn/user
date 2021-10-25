@@ -246,6 +246,29 @@
           "UserService"
         ]
       }
+    },
+    "/user/v1/users/me/personal-info": {
+      "get": {
+        "summary": "내 정보 조회",
+        "operationId": "UserService_GetMyPersonalInfo",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMyPersonalInfoResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "UserService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -273,6 +296,33 @@
           "items": {
             "$ref": "#/definitions/protobufAny"
           }
+        }
+      }
+    },
+    "v1GetMyPersonalInfoResponse": {
+      "type": "object",
+      "properties": {
+        "personalInfo": {
+          "$ref": "#/definitions/v1PersonalInfo"
+        }
+      }
+    },
+    "v1PersonalInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "NOTE: this may not be real name."
+        },
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "title": "format: E.164"
+        },
+        "nickname": {
+          "type": "string"
         }
       }
     },
