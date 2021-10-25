@@ -43,7 +43,7 @@ func Register(clock clockwork.Clock, db *sql.DB, hasher crypto.Hasher) RegisterH
 
 		phoneNumber, err := normalizePhoneNumber(verification.PhoneNumber)
 		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, "invalid phone_number")
+			return nil, status.Error(codes.Internal, "invalid phone_number")
 		}
 
 		if !verification.VerificationValidUntil.Valid || verification.VerificationValidUntil.Time.Before(now) {

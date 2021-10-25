@@ -13,6 +13,7 @@ import (
 
 	"github.com/sean-ahn/user/backend/crypto"
 	"github.com/sean-ahn/user/backend/model"
+	"github.com/sean-ahn/user/backend/persistence/mysql"
 	"github.com/sean-ahn/user/backend/server/service"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
@@ -45,12 +46,12 @@ func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserToken
 		)
 		switch detectIDType(req.Id) {
 		case IDTypeEmail:
-			findByID = findUserByEmail
+			findByID = mysql.FindUserByEmail
 			if !isValidEmail(req.Id) {
 				return nil, status.Error(codes.InvalidArgument, "invalid id format")
 			}
 		case IDTypePhoneNumber:
-			findByID = findUserByPhoneNumber
+			findByID = mysql.FindUserByPhoneNumber
 			norm, err := normalizePhoneNumber(id)
 			if err != nil {
 				return nil, status.Error(codes.InvalidArgument, "invalid id format")
@@ -101,20 +102,4 @@ func detectIDType(id string) IDType {
 		return IDTypeEmail
 	}
 	return 0
-}
-
-func findUserByEmail(ctx context.Context, exec boil.ContextExecutor, email string) (*model.User, error) {
-	u, err := model.Users(model.UserWhere.Email.EQ(email)).One(ctx, exec)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return u, nil
-}
-
-func findUserByPhoneNumber(ctx context.Context, exec boil.ContextExecutor, phoneNumber string) (*model.User, error) {
-	u, err := model.Users(model.UserWhere.PhoneNumber.EQ(phoneNumber)).One(ctx, exec)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return u, nil
 }
