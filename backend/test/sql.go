@@ -83,3 +83,31 @@ func NewJWTDenylistRows(denylists []*model.JWTDenylist) *sqlmock.Rows {
 	}
 	return rows
 }
+
+func NewSMSOtpVerificationRows(verifications []*model.SMSOtpVerification) *sqlmock.Rows {
+	rows := sqlmock.NewRows([]string{
+		model.SMSOtpVerificationColumns.SMSOtpVerificationID,
+		model.SMSOtpVerificationColumns.VerificationToken,
+		model.SMSOtpVerificationColumns.PhoneNumber,
+		model.SMSOtpVerificationColumns.OtpCode,
+		model.SMSOtpVerificationColumns.ExpiresAt,
+		model.SMSOtpVerificationColumns.VerificationTrials,
+		model.SMSOtpVerificationColumns.VerificationValidUntil,
+		model.SMSOtpVerificationColumns.CreatedAt,
+		model.SMSOtpVerificationColumns.UpdatedAt,
+	})
+	for _, v := range verifications {
+		rows.AddRow(
+			v.SMSOtpVerificationID,
+			v.VerificationToken,
+			v.PhoneNumber,
+			v.OtpCode,
+			v.ExpiresAt,
+			v.VerificationTrials,
+			v.VerificationValidUntil,
+			v.CreatedAt,
+			v.UpdatedAt,
+		)
+	}
+	return rows
+}

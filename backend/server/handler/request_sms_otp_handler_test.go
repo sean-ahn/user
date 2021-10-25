@@ -49,9 +49,9 @@ func TestRequestSmsOtp(t *testing.T) {
 			req:  &userv1.RequestSmsOtpRequest{PhoneNumber: "+821012345678"},
 			dbExpectFunc: func(mock sqlmock.Sqlmock) {
 				mock.ExpectExec(regexp.QuoteMeta(
-					"INSERT INTO `sms_otp_verification` (`verification_token`,`phone_number`,`otp_code`,`verification_trials`,`is_verified`,`expires_at`) VALUES (?,?,?,?,?,?)",
+					"INSERT INTO `sms_otp_verification` (`verification_token`,`phone_number`,`otp_code`,`expires_at`,`verification_trials`,`verification_valid_until`) VALUES (?,?,?,?,?,?)",
 				)).WithArgs(
-					"verification_token", "+821012345678", "123456", 0, false, now.Add(defaultSMSOTPExpiration),
+					"verification_token", "+821012345678", "123456", now.Add(defaultSMSOTPExpiration), 0, nil,
 				).WillReturnResult(
 					sqlmock.NewResult(1, 1),
 				)
@@ -87,9 +87,9 @@ func TestRequestSmsOtp(t *testing.T) {
 			req:  &userv1.RequestSmsOtpRequest{PhoneNumber: "+821012345678"},
 			dbExpectFunc: func(mock sqlmock.Sqlmock) {
 				mock.ExpectExec(regexp.QuoteMeta(
-					"INSERT INTO `sms_otp_verification` (`verification_token`,`phone_number`,`otp_code`,`verification_trials`,`is_verified`,`expires_at`) VALUES (?,?,?,?,?,?)",
+					"INSERT INTO `sms_otp_verification` (`verification_token`,`phone_number`,`otp_code`,`expires_at`,`verification_trials`,`verification_valid_until`) VALUES (?,?,?,?,?,?)",
 				)).WithArgs(
-					"verification_token", "+821012345678", "123456", 0, false, now.Add(defaultSMSOTPExpiration),
+					"verification_token", "+821012345678", "123456", now.Add(defaultSMSOTPExpiration), 0, nil,
 				).WillReturnResult(
 					sqlmock.NewResult(1, 1),
 				)

@@ -49,6 +49,39 @@
         ]
       }
     },
+    "/user/v1/otp/sms/verify": {
+      "post": {
+        "summary": "SMS OTP 검증",
+        "operationId": "UserService_VerifySmsOtp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1VerifySmsOtpResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifySmsOtpRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
     "/user/v1/sign-in": {
       "post": {
         "summary": "로그인",
@@ -256,6 +289,21 @@
       }
     },
     "v1SignOutResponse": {
+      "type": "object"
+    },
+    "v1VerifySmsOtpRequest": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "title": "format: uuid v4"
+        },
+        "smsOtpCode": {
+          "type": "string"
+        }
+      }
+    },
+    "v1VerifySmsOtpResponse": {
       "type": "object"
     }
   }

@@ -20,7 +20,7 @@ var (
 	_ smsv1.SmsServiceClient = (*MockSmsServiceClient)(nil)
 )
 
-func GetSmsServiceClient(serviceHost string) smsv1.SmsServiceClient {
+func GetSmsV1Service(serviceHost string) smsv1.SmsServiceClient {
 	smsOnce.Do(func() {
 		conn, err := grpc.Dial(
 			serviceHost,

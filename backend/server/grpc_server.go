@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/sean-ahn/user/backend/config"
+	"github.com/sean-ahn/user/backend/server/generator"
 	"github.com/sean-ahn/user/backend/server/handler"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
@@ -24,6 +25,14 @@ func NewUserServer(cfg config.Config) (*UserServer, error) {
 	return &UserServer{
 		cfg: cfg,
 	}, nil
+}
+
+func (s *UserServer) RequestSmsOtp(ctx context.Context, req *userv1.RequestSmsOtpRequest) (*userv1.RequestSmsOtpResponse, error) {
+	return handler.RequestSmsOtp(s.cfg.Clock(), s.cfg.DB(), &generator.UUIDGenerator{}, &generator.OTPGenerator{Len: s.cfg.Setting().SMSOTPCodeLength}, s.cfg.SmsV1Client())(ctx, req)
+}
+
+func (s *UserServer) VerifySmsOtp(ctx context.Context, req *userv1.VerifySmsOtpRequest) (*userv1.VerifySmsOtpResponse, error) {
+	return handler.VerifySmsOtp(s.cfg.Clock(), s.cfg.DB())(ctx, req)
 }
 
 func (s *UserServer) SignIn(ctx context.Context, req *userv1.SignInRequest) (*userv1.SignInResponse, error) {

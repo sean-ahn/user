@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -30,94 +31,109 @@ type SMSOtpVerification struct { // SMS OTP 인증 아이디
 	PhoneNumber string `boil:"phone_number" json:"phone_number" toml:"phone_number" yaml:"phone_number"`
 	// 인증 코드
 	OtpCode string `boil:"otp_code" json:"otp_code" toml:"otp_code" yaml:"otp_code"`
-	// 검증 시도 횟수
-	VerificationTrials int `boil:"verification_trials" json:"verification_trials" toml:"verification_trials" yaml:"verification_trials"`
-	// 인증 여부
-	IsVerified bool `boil:"is_verified" json:"is_verified" toml:"is_verified" yaml:"is_verified"`
 	// 만료 일시
 	ExpiresAt time.Time `boil:"expires_at" json:"expires_at" toml:"expires_at" yaml:"expires_at"`
-	CreatedAt time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	// 검증 시도 횟수
+	VerificationTrials int `boil:"verification_trials" json:"verification_trials" toml:"verification_trials" yaml:"verification_trials"`
+	// 검증 유효 일시
+	VerificationValidUntil null.Time `boil:"verification_valid_until" json:"verification_valid_until,omitempty" toml:"verification_valid_until" yaml:"verification_valid_until,omitempty"`
+	CreatedAt              time.Time `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt              time.Time `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
 
 	R *smsOtpVerificationR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L smsOtpVerificationL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var SMSOtpVerificationColumns = struct {
-	SMSOtpVerificationID string
-	VerificationToken    string
-	PhoneNumber          string
-	OtpCode              string
-	VerificationTrials   string
-	IsVerified           string
-	ExpiresAt            string
-	CreatedAt            string
-	UpdatedAt            string
+	SMSOtpVerificationID   string
+	VerificationToken      string
+	PhoneNumber            string
+	OtpCode                string
+	ExpiresAt              string
+	VerificationTrials     string
+	VerificationValidUntil string
+	CreatedAt              string
+	UpdatedAt              string
 }{
-	SMSOtpVerificationID: "sms_otp_verification_id",
-	VerificationToken:    "verification_token",
-	PhoneNumber:          "phone_number",
-	OtpCode:              "otp_code",
-	VerificationTrials:   "verification_trials",
-	IsVerified:           "is_verified",
-	ExpiresAt:            "expires_at",
-	CreatedAt:            "created_at",
-	UpdatedAt:            "updated_at",
+	SMSOtpVerificationID:   "sms_otp_verification_id",
+	VerificationToken:      "verification_token",
+	PhoneNumber:            "phone_number",
+	OtpCode:                "otp_code",
+	ExpiresAt:              "expires_at",
+	VerificationTrials:     "verification_trials",
+	VerificationValidUntil: "verification_valid_until",
+	CreatedAt:              "created_at",
+	UpdatedAt:              "updated_at",
 }
 
 var SMSOtpVerificationTableColumns = struct {
-	SMSOtpVerificationID string
-	VerificationToken    string
-	PhoneNumber          string
-	OtpCode              string
-	VerificationTrials   string
-	IsVerified           string
-	ExpiresAt            string
-	CreatedAt            string
-	UpdatedAt            string
+	SMSOtpVerificationID   string
+	VerificationToken      string
+	PhoneNumber            string
+	OtpCode                string
+	ExpiresAt              string
+	VerificationTrials     string
+	VerificationValidUntil string
+	CreatedAt              string
+	UpdatedAt              string
 }{
-	SMSOtpVerificationID: "sms_otp_verification.sms_otp_verification_id",
-	VerificationToken:    "sms_otp_verification.verification_token",
-	PhoneNumber:          "sms_otp_verification.phone_number",
-	OtpCode:              "sms_otp_verification.otp_code",
-	VerificationTrials:   "sms_otp_verification.verification_trials",
-	IsVerified:           "sms_otp_verification.is_verified",
-	ExpiresAt:            "sms_otp_verification.expires_at",
-	CreatedAt:            "sms_otp_verification.created_at",
-	UpdatedAt:            "sms_otp_verification.updated_at",
+	SMSOtpVerificationID:   "sms_otp_verification.sms_otp_verification_id",
+	VerificationToken:      "sms_otp_verification.verification_token",
+	PhoneNumber:            "sms_otp_verification.phone_number",
+	OtpCode:                "sms_otp_verification.otp_code",
+	ExpiresAt:              "sms_otp_verification.expires_at",
+	VerificationTrials:     "sms_otp_verification.verification_trials",
+	VerificationValidUntil: "sms_otp_verification.verification_valid_until",
+	CreatedAt:              "sms_otp_verification.created_at",
+	UpdatedAt:              "sms_otp_verification.updated_at",
 }
 
 // Generated where
 
-type whereHelperbool struct{ field string }
+type whereHelpernull_Time struct{ field string }
 
-func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
 var SMSOtpVerificationWhere = struct {
-	SMSOtpVerificationID whereHelperint
-	VerificationToken    whereHelperstring
-	PhoneNumber          whereHelperstring
-	OtpCode              whereHelperstring
-	VerificationTrials   whereHelperint
-	IsVerified           whereHelperbool
-	ExpiresAt            whereHelpertime_Time
-	CreatedAt            whereHelpertime_Time
-	UpdatedAt            whereHelpertime_Time
+	SMSOtpVerificationID   whereHelperint
+	VerificationToken      whereHelperstring
+	PhoneNumber            whereHelperstring
+	OtpCode                whereHelperstring
+	ExpiresAt              whereHelpertime_Time
+	VerificationTrials     whereHelperint
+	VerificationValidUntil whereHelpernull_Time
+	CreatedAt              whereHelpertime_Time
+	UpdatedAt              whereHelpertime_Time
 }{
-	SMSOtpVerificationID: whereHelperint{field: "`sms_otp_verification`.`sms_otp_verification_id`"},
-	VerificationToken:    whereHelperstring{field: "`sms_otp_verification`.`verification_token`"},
-	PhoneNumber:          whereHelperstring{field: "`sms_otp_verification`.`phone_number`"},
-	OtpCode:              whereHelperstring{field: "`sms_otp_verification`.`otp_code`"},
-	VerificationTrials:   whereHelperint{field: "`sms_otp_verification`.`verification_trials`"},
-	IsVerified:           whereHelperbool{field: "`sms_otp_verification`.`is_verified`"},
-	ExpiresAt:            whereHelpertime_Time{field: "`sms_otp_verification`.`expires_at`"},
-	CreatedAt:            whereHelpertime_Time{field: "`sms_otp_verification`.`created_at`"},
-	UpdatedAt:            whereHelpertime_Time{field: "`sms_otp_verification`.`updated_at`"},
+	SMSOtpVerificationID:   whereHelperint{field: "`sms_otp_verification`.`sms_otp_verification_id`"},
+	VerificationToken:      whereHelperstring{field: "`sms_otp_verification`.`verification_token`"},
+	PhoneNumber:            whereHelperstring{field: "`sms_otp_verification`.`phone_number`"},
+	OtpCode:                whereHelperstring{field: "`sms_otp_verification`.`otp_code`"},
+	ExpiresAt:              whereHelpertime_Time{field: "`sms_otp_verification`.`expires_at`"},
+	VerificationTrials:     whereHelperint{field: "`sms_otp_verification`.`verification_trials`"},
+	VerificationValidUntil: whereHelpernull_Time{field: "`sms_otp_verification`.`verification_valid_until`"},
+	CreatedAt:              whereHelpertime_Time{field: "`sms_otp_verification`.`created_at`"},
+	UpdatedAt:              whereHelpertime_Time{field: "`sms_otp_verification`.`updated_at`"},
 }
 
 // SMSOtpVerificationRels is where relationship names are stored.
@@ -137,8 +153,8 @@ func (*smsOtpVerificationR) NewStruct() *smsOtpVerificationR {
 type smsOtpVerificationL struct{}
 
 var (
-	smsOtpVerificationAllColumns            = []string{"sms_otp_verification_id", "verification_token", "phone_number", "otp_code", "verification_trials", "is_verified", "expires_at", "created_at", "updated_at"}
-	smsOtpVerificationColumnsWithoutDefault = []string{"verification_token", "phone_number", "otp_code", "verification_trials", "is_verified", "expires_at"}
+	smsOtpVerificationAllColumns            = []string{"sms_otp_verification_id", "verification_token", "phone_number", "otp_code", "expires_at", "verification_trials", "verification_valid_until", "created_at", "updated_at"}
+	smsOtpVerificationColumnsWithoutDefault = []string{"verification_token", "phone_number", "otp_code", "expires_at", "verification_trials", "verification_valid_until"}
 	smsOtpVerificationColumnsWithDefault    = []string{"sms_otp_verification_id", "created_at", "updated_at"}
 	smsOtpVerificationPrimaryKeyColumns     = []string{"sms_otp_verification_id"}
 )
