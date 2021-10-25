@@ -22,6 +22,8 @@ type UserServiceClient interface {
 	RequestSmsOtp(ctx context.Context, in *RequestSmsOtpRequest, opts ...grpc.CallOption) (*RequestSmsOtpResponse, error)
 	// SMS OTP 검증
 	VerifySmsOtp(ctx context.Context, in *VerifySmsOtpRequest, opts ...grpc.CallOption) (*VerifySmsOtpResponse, error)
+	// 이메일 검증
+	ConfirmEmail(ctx context.Context, in *ConfirmEmailRequest, opts ...grpc.CallOption) (*ConfirmEmailResponse, error)
 	// 회원가입
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// 로그인
@@ -56,6 +58,15 @@ func (c *userServiceClient) RequestSmsOtp(ctx context.Context, in *RequestSmsOtp
 func (c *userServiceClient) VerifySmsOtp(ctx context.Context, in *VerifySmsOtpRequest, opts ...grpc.CallOption) (*VerifySmsOtpResponse, error) {
 	out := new(VerifySmsOtpResponse)
 	err := c.cc.Invoke(ctx, "/user.v1.UserService/VerifySmsOtp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) ConfirmEmail(ctx context.Context, in *ConfirmEmailRequest, opts ...grpc.CallOption) (*ConfirmEmailResponse, error) {
+	out := new(ConfirmEmailResponse)
+	err := c.cc.Invoke(ctx, "/user.v1.UserService/ConfirmEmail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +135,8 @@ type UserServiceServer interface {
 	RequestSmsOtp(context.Context, *RequestSmsOtpRequest) (*RequestSmsOtpResponse, error)
 	// SMS OTP 검증
 	VerifySmsOtp(context.Context, *VerifySmsOtpRequest) (*VerifySmsOtpResponse, error)
+	// 이메일 검증
+	ConfirmEmail(context.Context, *ConfirmEmailRequest) (*ConfirmEmailResponse, error)
 	// 회원가입
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// 로그인
@@ -147,6 +160,9 @@ func (UnimplementedUserServiceServer) RequestSmsOtp(context.Context, *RequestSms
 }
 func (UnimplementedUserServiceServer) VerifySmsOtp(context.Context, *VerifySmsOtpRequest) (*VerifySmsOtpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifySmsOtp not implemented")
+}
+func (UnimplementedUserServiceServer) ConfirmEmail(context.Context, *ConfirmEmailRequest) (*ConfirmEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConfirmEmail not implemented")
 }
 func (UnimplementedUserServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
@@ -210,6 +226,24 @@ func _UserService_VerifySmsOtp_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).VerifySmsOtp(ctx, req.(*VerifySmsOtpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_ConfirmEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ConfirmEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.v1.UserService/ConfirmEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ConfirmEmail(ctx, req.(*ConfirmEmailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -336,6 +370,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifySmsOtp",
 			Handler:    _UserService_VerifySmsOtp_Handler,
+		},
+		{
+			MethodName: "ConfirmEmail",
+			Handler:    _UserService_ConfirmEmail_Handler,
 		},
 		{
 			MethodName: "Register",
