@@ -59,7 +59,9 @@ func TestGetMyPersonalInfo(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-			ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{headerKeyAuthorization: "access_token"}))
+			ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+				headerKeyAuthorization: "Bearer access_token",
+			}))
 
 			ctrl := gomock.NewController(t)
 

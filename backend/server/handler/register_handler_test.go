@@ -53,6 +53,22 @@ func TestRegister(t *testing.T) {
 					{PhoneNumber: "+821012345678", VerificationValidUntil: null.TimeFrom(now.Add(defaultSMSOTPValidity))},
 				}))
 
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `user` WHERE (`user`.`phone_number` = ?) LIMIT 1;",
+				)).WithArgs(
+					"+821012345678",
+				).WillReturnError(
+					sql.ErrNoRows,
+				)
+
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
+				)).WithArgs(
+					"john.doe@example.com",
+				).WillReturnError(
+					sql.ErrNoRows,
+				)
+
 				mock.ExpectExec(regexp.QuoteMeta(
 					"INSERT INTO `user` (`name`,`email`,`is_email_confirmed`,`phone_number`,`nickname`,`password_hash`) VALUES (?,?,?,?,?,?)",
 				)).WithArgs(
@@ -71,6 +87,43 @@ func TestRegister(t *testing.T) {
 			},
 			expectedCode: codes.OK,
 			expectedResp: &userv1.RegisterResponse{},
+		},
+		{
+			name: "fail even if email not confirmed",
+			req: &userv1.RegisterRequest{
+				VerificationToken: "verification_token",
+				Name:              "name",
+				Email:             "john.doe@example.com",
+				Password:          "P@ssw0rd",
+				Nickname:          proto.String("nickname"),
+			},
+			dbExpectFunc: func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `sms_otp_verification` WHERE (`sms_otp_verification`.`verification_token` = ?) LIMIT 1;",
+				)).WithArgs(
+					"verification_token",
+				).WillReturnRows(test.NewSMSOtpVerificationRows([]*model.SMSOtpVerification{
+					{PhoneNumber: "+821012345678", VerificationValidUntil: null.TimeFrom(now.Add(defaultSMSOTPValidity))},
+				}))
+
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `user` WHERE (`user`.`phone_number` = ?) LIMIT 1;",
+				)).WithArgs(
+					"+821012345678",
+				).WillReturnError(
+					sql.ErrNoRows,
+				)
+
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `user` WHERE (`user`.`email` = ?) LIMIT 1;",
+				)).WithArgs(
+					"john.doe@example.com",
+				).WillReturnRows(test.NewUserRows([]*model.User{
+					{UserID: 2, Email: "john.doe@example.com", IsEmailConfirmed: false},
+				}))
+			},
+			expectedCode: codes.InvalidArgument,
+			expectedErr:  "rpc error: code = InvalidArgument desc = already used email",
 		},
 		{
 			name: "verification not found",

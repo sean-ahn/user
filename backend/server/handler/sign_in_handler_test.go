@@ -83,6 +83,28 @@ func TestSignIn(t *testing.T) {
 			expectedResp: &userv1.SignInResponse{AccessToken: "access_token", RefreshToken: "refresh_token"},
 		},
 		{
+			name: "sign in with phone number when email has unverified",
+			req:  &userv1.SignInRequest{Id: "+821012345678", Password: "P@ssw0rd"},
+			dbExpectFunc: func(m sqlmock.Sqlmock) {
+				m.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `user` WHERE (`user`.`phone_number` = ?) LIMIT 1;",
+				)).WithArgs(
+					"+821012345678",
+				).WillReturnRows(test.NewUserRows([]*model.User{
+					{UserID: 1, Email: "john.doe@example.com", IsEmailConfirmed: false, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"},
+				}))
+			},
+			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
+				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						Issue(ctx, &model.User{UserID: 1, Email: "john.doe@example.com", IsEmailConfirmed: false, PhoneNumber: "+821012345678", PasswordHash: "P@ssw0rd_hash"}).
+						Return("access_token", "refresh_token", nil)
+				}
+			},
+			expectedCode: codes.OK,
+			expectedResp: &userv1.SignInResponse{AccessToken: "access_token", RefreshToken: "refresh_token"},
+		},
+		{
 			name: "sign in with unverified email",
 			req:  &userv1.SignInRequest{Id: "john.doe@example.com", Password: "P@ssw0rd"},
 			dbExpectFunc: func(m sqlmock.Sqlmock) {

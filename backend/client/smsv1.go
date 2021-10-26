@@ -3,6 +3,7 @@ package client
 //go:generate mockgen -package client -destination ./smsv1_client_mock.go -mock_names SmsServiceClient=MockSmsServiceClient github.com/sean-ahn/user/proto/gen/go/sms/v1 SmsServiceClient
 
 import (
+	"context"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -35,4 +36,14 @@ func GetSmsV1Service(serviceHost string) smsv1.SmsServiceClient {
 	})
 
 	return smsCli
+}
+
+type mockSmsV1ServiceClient struct{}
+
+func (c *mockSmsV1ServiceClient) Send(_ context.Context, _ *smsv1.SendRequest, _ ...grpc.CallOption) (*smsv1.SendResponse, error) {
+	return &smsv1.SendResponse{}, nil
+}
+
+func GetMockSmsV1Service(_ string) smsv1.SmsServiceClient {
+	return &mockSmsV1ServiceClient{}
 }

@@ -50,6 +50,20 @@ func Register(clock clockwork.Clock, db *sql.DB, hasher crypto.Hasher) RegisterH
 			return nil, status.Error(codes.InvalidArgument, "invalid verification")
 		}
 
+		if _, err := mysql.FindUserByPhoneNumber(ctx, db, phoneNumber); errors.Cause(err) != sql.ErrNoRows {
+			if err == nil {
+				return nil, status.Error(codes.InvalidArgument, "already used phone number")
+			}
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+
+		if _, err := mysql.FindUserByEmail(ctx, db, req.Email); errors.Cause(err) != sql.ErrNoRows {
+			if err == nil {
+				return nil, status.Error(codes.InvalidArgument, "already used email")
+			}
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+
 		nickname := req.Name
 		if req.Nickname != nil {
 			nickname = *req.Nickname
