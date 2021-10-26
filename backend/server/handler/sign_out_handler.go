@@ -15,6 +15,15 @@ type SignOutHandlerFunc func(ctx context.Context, req *userv1.SignOutRequest) (*
 
 func SignOut(userTokenService service.UserTokenService) SignOutHandlerFunc {
 	return func(ctx context.Context, req *userv1.SignOutRequest) (*userv1.SignOutResponse, error) {
+		token := extractToken(ctx)
+		if token == "" {
+			return nil, status.Error(codes.Unauthenticated, "no token")
+		}
+
+		if _, err := userTokenService.GetUser(ctx, token); err != nil {
+			return nil, status.Error(codes.Unauthenticated, "invalid token")
+		}
+
 		if req.RefreshToken == "" {
 			return nil, status.Error(codes.InvalidArgument, "no refresh_token")
 		}

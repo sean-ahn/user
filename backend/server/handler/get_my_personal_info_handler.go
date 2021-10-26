@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -29,7 +28,7 @@ func GetMyPersonalInfo(userTokenService service.UserTokenService) GetMyPersonalI
 
 		user, err := userTokenService.GetUser(ctx, token)
 		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "invalid token: "+err.Error())
+			return nil, status.Error(codes.Unauthenticated, "invalid token")
 		}
 
 		return &userv1.GetMyPersonalInfoResponse{PersonalInfo: convertToPersonalInfo(user)}, nil
@@ -38,13 +37,9 @@ func GetMyPersonalInfo(userTokenService service.UserTokenService) GetMyPersonalI
 
 func extractToken(ctx context.Context) string {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		logrus.Info(md)
 		if authorization := md.Get(headerKeyAuthorization); len(authorization) == 1 {
-			logrus.Info(authorization)
 			split := strings.Split(authorization[0], " ")
-			logrus.Info(split)
 			if len(split) == 2 && split[0] == "Bearer" {
-				logrus.Info(split[1])
 				return split[1]
 			}
 			return ""
