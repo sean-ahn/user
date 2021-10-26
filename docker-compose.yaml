@@ -15,7 +15,7 @@ services:
       - 8081:8081
     command: ["./wait-for-it.sh", "db:3306", "--strict", "--timeout=300", "--", "/backend"]
     volumes:
-      - "./wait-for-it.sh:/wait-for-it.sh"
+      - "./wait-for-it/wait-for-it.sh:/wait-for-it.sh"
   db:
     image: mysql:8.0
     platform: linux/amd64
