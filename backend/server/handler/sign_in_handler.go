@@ -44,7 +44,8 @@ func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserToken
 			id       = req.Id
 			findByID func(context.Context, boil.ContextExecutor, string) (*model.User, error)
 		)
-		switch detectIDType(req.Id) {
+		idType := detectIDType(req.Id)
+		switch idType {
 		case IDTypeEmail:
 			findByID = mysql.FindUserByEmail
 			if !isValidEmail(req.Id) {
@@ -81,7 +82,7 @@ func SignIn(hasher crypto.Hasher, db *sql.DB, userTokenService service.UserToken
 			return nil, status.Error(codes.Unauthenticated, signInFailureMessage)
 		}
 
-		if !user.IsEmailConfirmed {
+		if idType == IDTypeEmail && !user.IsEmailConfirmed {
 			return nil, status.Error(codes.Unauthenticated, "email not verified yet")
 		}
 

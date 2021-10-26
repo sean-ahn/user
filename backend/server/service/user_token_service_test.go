@@ -152,6 +152,30 @@ func TestUserJWTTokenService_Refresh(t *testing.T) {
 				).WillReturnRows(test.NewJWTAudienceSecretRows([]*model.JWTAudienceSecret{
 					{Audience: "user:1", Secret: "DBetxLyZOcHw3gQ+ozOyg+c6N1j2xG2yPTSVRrnXsaE="},
 				}))
+
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT * FROM `jwt_audience_secret` WHERE (`jwt_audience_secret`.`audience` = ?) LIMIT 1;",
+				)).WithArgs(
+					"user:1",
+				).WillReturnRows(test.NewJWTAudienceSecretRows([]*model.JWTAudienceSecret{
+					{Audience: "user:1", Secret: "DBetxLyZOcHw3gQ+ozOyg+c6N1j2xG2yPTSVRrnXsaE="},
+				}))
+
+				mock.ExpectExec(regexp.QuoteMeta(
+					"INSERT INTO `jwt_denylist` (`user_id`,`jti`) VALUES (?,?)",
+				)).WithArgs(
+					1, "d391416c-c2d2-44d5-b3ec-147a7713606d",
+				).WillReturnResult(
+					sqlmock.NewResult(3, 1),
+				)
+
+				mock.ExpectQuery(regexp.QuoteMeta(
+					"SELECT `jwt_denylist_id`,`created_at`,`updated_at` FROM `jwt_denylist` WHERE `jwt_denylist_id`=?",
+				)).WithArgs(
+					3,
+				).WillReturnRows(sqlmock.NewRows([]string{"jwt_denylist_id", "created_at", "updated_at"}).
+					AddRow(3, now, now),
+				)
 			},
 		},
 		{

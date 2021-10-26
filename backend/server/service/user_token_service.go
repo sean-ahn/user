@@ -116,6 +116,10 @@ func (s *UserJWTTokenService) Refresh(ctx context.Context, refreshToken string) 
 		return "", "", err
 	}
 
+	if err := s.Revoke(ctx, refreshToken); err != nil {
+		return "", "", err
+	}
+
 	return s.generateTokens(user, secret)
 }
 
@@ -165,14 +169,10 @@ func (s *UserJWTTokenService) RevokeAll(ctx context.Context, user *model.User, t
 func (s *UserJWTTokenService) GetUser(ctx context.Context, accessToken string) (*model.User, error) {
 	token, err := s.parseToken(ctx, accessToken)
 	if err != nil {
-		return nil, errors.Wrap(ErrTokenRevocationFailed, err.Error())
+		return nil, err
 	}
 
 	claims := token.Claims.(*JWTClaims)
-	if claims.ID == "" {
-		return nil, errors.WithStack(errInvalidClaimsFormat)
-	}
-
 	userID64, err := strconv.ParseInt(claims.UserID, 10, 32)
 	if err != nil {
 		return nil, errors.WithStack(errInvalidClaimsFormat)
