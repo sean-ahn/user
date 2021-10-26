@@ -50,6 +50,11 @@ jobs:
         with:
           fetch-depth: 5
 
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v1
+        with:
+          dockerfile: ../Dockerfile
+
       - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
