@@ -39,6 +39,12 @@ jobs:
           input: "proto"
           against: "https://github.com/${GITHUB_REPOSITORY}.git#branch=main,ref=HEAD~1,subdir=proto"
 
+      - name: Diff
+        run: |
+          make clean
+          make generate
+          git diff --exit-code gen
+
   backend:
     runs-on: ubuntu-latest
     defaults:
