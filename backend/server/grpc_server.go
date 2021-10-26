@@ -3,11 +3,15 @@ package server
 import (
 	"context"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 
 	"github.com/sean-ahn/user/backend/config"
 	"github.com/sean-ahn/user/backend/server/generator"
@@ -68,7 +72,13 @@ func NewGRPCServer(cfg config.Config) (*grpc.Server, error) {
 	log := logrus.New()
 	log.SetFormatter(&logrus.JSONFormatter{})
 
-	srv := grpc.NewServer()
+	srv := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandler(func(p interface{}) (err error) {
+				return status.Errorf(codes.Unknown, "panic triggered: %v", p)
+			})),
+		),
+	)
 
 	userServer, err := NewUserServer(cfg)
 	if err != nil {
