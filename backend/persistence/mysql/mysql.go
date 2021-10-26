@@ -27,9 +27,6 @@ func MustGetDB(setting Setting) *sql.DB {
 	if err != nil {
 		logrus.Panic(err)
 	}
-	if err := db.Ping(); err != nil {
-		logrus.Panic(err)
-	}
 
 	db.SetMaxIdleConns(setting.MaxIdleConns)
 	db.SetMaxOpenConns(setting.MaxOpenConns)

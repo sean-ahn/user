@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -40,6 +41,7 @@ func run() error {
 	defer cancel()
 
 	clock := clockwork.NewRealClock()
+	rand.Seed(clock.Now().UnixNano())
 
 	setting := config.NewSetting()
 
@@ -62,7 +64,7 @@ func run() error {
 		clock,
 		db,
 		crypto.NewScryptHasher(salt),
-		client.GetSmsV1Service(setting.SMSV1ServiceEndpoint),
+		client.GetMockSmsV1Service(setting.SMSV1ServiceEndpoint),
 		userTokenService,
 	)
 
