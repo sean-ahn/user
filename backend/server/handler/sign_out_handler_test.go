@@ -9,9 +9,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/testing/protocmp"
 
+	"github.com/sean-ahn/user/backend/model"
 	"github.com/sean-ahn/user/backend/server/service"
 	userv1 "github.com/sean-ahn/user/proto/gen/go/user/v1"
 )
@@ -33,6 +35,10 @@ func TestSignOut(t *testing.T) {
 			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
 				return func(mock *service.MockUserTokenService) {
 					mock.EXPECT().
+						GetUser(ctx, "access_token").
+						Return(&model.User{UserID: 1}, nil)
+
+					mock.EXPECT().
 						Revoke(ctx, "refresh_token").
 						Return(nil)
 				}
@@ -41,8 +47,28 @@ func TestSignOut(t *testing.T) {
 			expectedResp: &userv1.SignOutResponse{},
 		},
 		{
-			name:         "no refresh_token",
-			req:          &userv1.SignOutRequest{},
+			name: "unauthorized",
+			req:  &userv1.SignOutRequest{RefreshToken: "refresh_token"},
+			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
+				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						GetUser(ctx, "access_token").
+						Return(nil, errors.New("invalid token"))
+				}
+			},
+			expectedCode: codes.Unauthenticated,
+			expectedErr:  "rpc error: code = Unauthenticated desc = invalid token",
+		},
+		{
+			name: "no refresh_token",
+			req:  &userv1.SignOutRequest{},
+			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
+				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						GetUser(ctx, "access_token").
+						Return(&model.User{UserID: 1}, nil)
+				}
+			},
 			expectedCode: codes.InvalidArgument,
 			expectedErr:  "rpc error: code = InvalidArgument desc = no refresh_token",
 		},
@@ -51,6 +77,10 @@ func TestSignOut(t *testing.T) {
 			req:  &userv1.SignOutRequest{RefreshToken: "refresh_token"},
 			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
 				return func(mock *service.MockUserTokenService) {
+					mock.EXPECT().
+						GetUser(ctx, "access_token").
+						Return(&model.User{UserID: 1}, nil)
+
 					mock.EXPECT().
 						Revoke(ctx, "refresh_token").
 						Return(service.ErrTokenRevocationFailed)
@@ -65,6 +95,10 @@ func TestSignOut(t *testing.T) {
 			userTokenServiceExpectFunc: func(ctx context.Context) func(*service.MockUserTokenService) {
 				return func(mock *service.MockUserTokenService) {
 					mock.EXPECT().
+						GetUser(ctx, "access_token").
+						Return(&model.User{UserID: 1}, nil)
+
+					mock.EXPECT().
 						Revoke(ctx, "refresh_token").
 						Return(errors.New("unexpected error"))
 				}
@@ -78,7 +112,9 @@ func TestSignOut(t *testing.T) {
 		tc := tc
 
 		t.Run(tc.name, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{
+				headerKeyAuthorization: "Bearer access_token",
+			}))
 
 			ctrl := gomock.NewController(t)
 
